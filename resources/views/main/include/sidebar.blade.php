@@ -16,7 +16,7 @@ $title = 'Logo';
 		@auth
 		@if (Auth::User()->level_user=='4') <!-- Siswa -->
 			<li class="{{ ($title == 'Dashboard') ? 'mm-active' : ''}}">
-				<a href="{{route('elearning.dashboard.main')}}">
+				<a href="{{route('siswa.dashboard')}}">
 					<div class="parent-icon">
 						<i style="color: #fff" class='bx bx-home-circle'></i>
 					</div>

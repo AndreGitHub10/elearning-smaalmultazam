@@ -12,7 +12,7 @@ class PilihanJawaban extends Model
 
 	protected $table = "pilihan_jawaban";
 	protected $primaryKey = "id_pilihan_jawaban";
-	public $incrementing = false;
+	// public $incrementing = false;
 
 	public function pertanyaan()
 	{

@@ -10,6 +10,8 @@ use App\Http\Controllers\Elearning\Admin\MateriElearningController;
 use App\Http\Controllers\Elearning\Admin\TahunAjaranController;
 use App\Http\Controllers\Elearning\DashboardController;
 use App\Http\Controllers\Elearning\Guru\SoalTulisController;
+use App\Http\Controllers\Elearning\Siswa\DashboardController as DashboardSiswa;
+use App\Http\Controllers\Elearning\Siswa\MainController;
 use App\Http\Controllers\Error\ErrorController;
 
 /*
@@ -153,10 +155,28 @@ Route::middleware(['auth'])->group(function () {
 					Route::post('/add', 'add')->name('add');
 					Route::post('/create-soal', 'createSoal')->name('createSoal');
 					Route::post('/pertanyaan-form', 'pertanyaanForm')->name('pertanyaanForm');
+					Route::post('/pertanyaan-store', 'pertanyaanStore')->name('pertanyaanStore');
 				});
 			# END SOAL TULIS
 		});
 	# END MIDDLEWARE GURU
 
+	# START MIDDLEWARE SISWA
+	Route::middleware(['siswa'])
+	->prefix('siswa')
+	->as('siswa.')
+	->group(function(){
+		# START DASHBOARD
+		Route::get('/',[DashboardSiswa::class,'main'])->name('dashboard');
+		# END DASHBOARD
+
+		# START KERJAKAN SOAL
+		Route::controller(MainController::class)
+		->group(function () {
+			Route::get('/kerjakan','kerjakan')->name('kerjakan');
+		});
+		# END KERJAKAN SOAL
+	});
+	# END MIDDLEWARE SISWA
 });
 # END MIDDLEWARE AUTH

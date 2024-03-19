@@ -102,7 +102,7 @@
 	var myModal = new bootstrap.Modal(document.getElementById('pendahuluanModal'), {
 		keyboard: false
 	})
-	var routeKerjakan = "{{route('elearning.main.kerjakan')}}"
+	var routeKerjakan = "{{route('siswa.kerjakan')}}"
 	$(document).ready(()=>{
 		$('#dataTable').DataTable({
 			scrollX:true

@@ -13,6 +13,7 @@ use App\Models\Soal;
 use App\Models\TahunAjaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Libraries\compressFile;
 use Auth, Help, CLog, DB, DataTables, GRes;
 
 class SoalTulisController extends Controller
@@ -126,5 +127,92 @@ class SoalTulisController extends Controller
 		}
 		$content = view('main.content.guru.soal-materi.lembar-soal', $data)->render();
 		return ['status' => 'success', 'message' => 'Soal berhasil ditemukan', 'content' => $content];
+	}
+
+	public function pertanyaanStore(Request $request)
+	{
+		$params = [
+			'id_pertanyaan' => 'required',
+		];
+		$message = [
+			'id_pertanyaan.required' => 'ID Pertanyaan harus diisi',
+		];
+		$validator = Validator::make($request->all(), $params, $message);
+		if ($validator->fails()) {
+			foreach ($validator->errors()->toArray() as $key => $val) {
+				$msg = $val[0]; # Get validation messages, only one
+				break;
+			}
+			return ['status' => 'fail', 'message' => $msg];
+		}
+		$alphabet = range('A', 'Z');
+		DB::beginTransaction();
+		try {
+			if (!$pertanyaan = Pertanyaan::where('id_pertanyaan', $request->id_pertanyaan)->first()) {
+				return ['status' => 'fail', 'message' => 'Pertanyaan tidak dapat ditemukan'];
+			}
+			$pertanyaan->pertanyaan_text = $request->pertanyaan_text;
+			foreach ($request->pilihan_jawaban as $key => $value) {
+				$pilihan_jawaban = (object) $value;
+				if (isset($pilihan_jawaban->id_pilihan_jawaban)) {
+					if (!$pilihan_jawaban_new = PilihanJawaban::where('id_pilihan_jawaban', $pilihan_jawaban->id_pilihan_jawaban)->first()) {
+						$pilihan_jawaban_new = new PilihanJawaban;
+						$pilihan_jawaban_new->pertanyaan_id = $request->id_pertanyaan;
+					}
+				} else {
+					$pilihan_jawaban_new = new PilihanJawaban;
+					$pilihan_jawaban_new->pertanyaan_id = $request->id_pertanyaan;
+				}
+				$pilihan_jawaban_new->benar = isset($pilihan_jawaban->benar) ? true : false;
+				$pilihan_jawaban_new->pilihan_text = $pilihan_jawaban->pilihan_text;
+				$pilihan_jawaban_new->prefix_pilihan = $alphabet[$key];
+				if (!empty($pilihan_jawaban->file)) {
+					if ($pilihan_jawaban_new->nama_file != '') {
+						if (file_exists('uploads/elearning/pilihan_jawaban/' . $pilihan_jawaban_new->nama_file)) {
+							unlink('uploads/elearning/pilihan_jawaban/' . $pilihan_jawaban_new->nama_file);
+						}
+					}
+					$ukuranFile1 = filesize($pilihan_jawaban->file);
+					if ($ukuranFile1 <= 500000) {
+						$ext_foto1 = $pilihan_jawaban->file->getClientOriginalExtension();
+						$filename1 = "Pilihan_jawaban" . date('Ymd-His') . "." . $ext_foto1;
+						$temp_foto1 = 'uploads/elearning/pilihan_jawaban/';
+						$proses1 = $pilihan_jawaban->file->move($temp_foto1, $filename1);
+						$pilihan_jawaban_new->nama_file = $filename1;
+						$pilihan_jawaban_new->type_file = 'image';
+					} else {
+						$file1 = $_FILES['gambar']['name'];
+						$ext_foto1 = $pilihan_jawaban->file->getClientOriginalExtension();
+						if (!empty($file1)) {
+							$direktori1 = 'uploads/elearning/pilihan_jawaban/'; //tempat upload foto
+							$name1 = 'gambar'; //name pada input type file
+							$namaBaru1 = "Pilihan_jawaban" . date('Ymd-His'); //name pada input type file
+							$quality1 = 50; //konversi kualitas gambar dalam satuan %
+							$upload1 = compressFile::UploadCompress($namaBaru1, $name1, $direktori1, $quality1);
+						}
+						$pilihan_jawaban_new->nama_file = $namaBaru1 . "." . $ext_foto1;
+						$pilihan_jawaban_new->type_file = 'image';
+					}
+				}
+				if (!$pilihan_jawaban_new->save()) {
+					DB::rollback();
+					return ['status' => 'fail', 'message' => 'Tersimpan'];
+				}
+			}
+			if (!$pertanyaan->save()) {
+				DB::rollback();
+				return ['status' => 'fail', 'message' => 'Tersimpan'];
+			}
+			DB::commit();
+		} catch (\Throwable $e) {
+			DB::rollback();
+			$request->merge([
+				'file' => $e->getFile(),
+				'message' => $e->getMessage(),
+				'line' => $e->getLine(),
+			]);
+			CLog::catchError($request);
+			return Help::resMsg(null, 500);
+		}
 	}
 }

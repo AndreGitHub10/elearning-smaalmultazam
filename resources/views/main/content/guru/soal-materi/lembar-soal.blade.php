@@ -56,6 +56,7 @@
 @php
 	$alphabet = range('A','Z');
 	function jawabanBenar($pilihan) {
+		$alphabet = range('A','Z');
 		$j = 'X';
 		foreach ($pilihan as $key => $value) {
 			if ($value->benar) {
@@ -93,7 +94,7 @@
 						<div class="w-100 mb-3 shadow p-2 rounded" id="header-side-soal">
 							<h5 id="totalSelesai" class="text-white"></h5>
 						</div>
-						<div class="overflow-y-scroll d-flex flex-wrap gap-1 w-100" style="max-height: 400px;overflow-y:scroll;overflow-x:visible">
+						<div class="overflow-y-scroll d-flex flex-wrap gap-1 w-100 pertanyaanMap" style="max-height: 400px;overflow-y:scroll;overflow-x:visible">
 							@foreach ($pertanyaans as $p)
 								<div class="shadow m-auto bg-white square-box-parent d-flex flex-wrap cursor-pointer select-pertanyaan-area" onclick="getPertanyaan('{{$p->id_pertanyaan}}')">
 									<div class="text-center" style="width: 60px;height:40px"><h4>{{$loop->index+1}}</h4></div>
@@ -114,10 +115,10 @@
 						<div class="mb-3" id="jawaban_area">
 							<div class="d-flex align-items-center jawaban">
 								<h4 class="m-auto">{{$alphabet[0]}}</h4>
-								<textarea class="form-control ms-2" name="pilihan_jawaban[0]pilihan_text" id="pilihan_text_0" rows="1"></textarea>
-								<input class="form-control ms-2 file" type="file" name="pilihan_jawaban[0]file" id="file_0">
+								<textarea class="form-control ms-2" name="pilihan_jawaban[0][pilihan_text]" id="pilihan_text_0" rows="1"></textarea>
+								<input class="form-control ms-2 file" type="file" name="pilihan_jawaban[0][file]" id="file_0" accept="image/*">
 								<div class="form-check d-flex align-items-center">
-									<input class="form-check-input m-auto" type="radio" name="pilihan_jawaban[0]benar" id="benar_0">
+									<input class="form-check-input m-auto benar" type="radio" name="pilihan_jawaban[0][benar]" id="benar_0">
 									<label class="form-check-label w-fit">
 										Jawaban Benar
 									</label>
@@ -132,7 +133,7 @@
 						</div>
 					</div>
 					<div class="col-12 mt-3">
-						<button class="btn btn-primary">SIMPAN PERTANYAAN</button>
+						<button class="btn btn-primary btnSimpanPertanyaan">SIMPAN PERTANYAAN</button>
 					</div>
 				</div>
 			</div>
@@ -162,10 +163,10 @@
 		let jmlJawaban = $('.jawaban').length
 		$('#jawaban_area').append(`<div class="d-flex align-items-center jawaban">
 								<h4 class="m-auto">${alphabet[jmlJawaban]}</h4>
-								<textarea class="form-control ms-2" name="pilihan_jawaban[${jmlJawaban}]pilihan_text" id="pilihan_text_${jmlJawaban}" rows="1"></textarea>
-								<input class="form-control ms-2 file" type="file" name="pilihan_jawaban[${jmlJawaban}]file" id="file_${jmlJawaban}">
+								<textarea class="form-control ms-2" name="pilihan_jawaban[${jmlJawaban}][pilihan_text]" id="pilihan_text_${jmlJawaban}" rows="1"></textarea>
+								<input class="form-control ms-2 file" type="file" name="pilihan_jawaban[${jmlJawaban}][file]" id="file_${jmlJawaban}" accept="image/*">
 								<div class="form-check d-flex align-items-center">
-									<input class="form-check-input m-auto" type="radio" name="pilihan_jawaban[${jmlJawaban}]benar" id="benar_${jmlJawaban}">
+									<input class="form-check-input m-auto benar" type="radio" name="pilihan_jawaban[${jmlJawaban}][benar]" id="benar_${jmlJawaban}">
 									<label class="form-check-label w-fit">
 										Jawaban Benar
 									</label>
@@ -176,16 +177,35 @@
 		}
 	})
 
+	$('.btnSimpanPertanyaan').click((e)=>{
+		e.preventDefault()
+		console.log('aaa');
+		simpanPertanyaan()
+	})
+
+	function simpanPertanyaan() {
+		var data = new FormData($('#formPertanyaan')[0])
+		var pertanyaan_text = CKEDITOR.instances.pertanyaan_text.getData();
+		data.append('pertanyaan_text',pertanyaan_text);
+		// $.post("{{route('guru.soalTulis.pertanyaanStore')}}",{data:data})
+		// $.post("{{route('guru.soalTulis.pertanyaanStore')}}")
+		$.ajax({
+			type: "POST",
+			url: "{{route('guru.soalTulis.pertanyaanStore')}}",
+			data: data,
+			processData: false,
+			contentType: false,
+		})
+		console.log(data);
+	}
+
 	var pertanyaan_text = CKEDITOR.replace('pertanyaan_text', {
 		// uiColor: '#CCEAEE'
 		toolbarCanCollapse:false,
 	});
 
 	function autoSave() {
-		var data = new FormData($('#formPertanyaan')[0])
-		var pertanyaan_text = CKEDITOR.instances.pertanyaan_text.getData();
-		data.append('pertanyaan_text',pertanyaan_text);
-		console.log(data);
+		
 	}
 
 	function hitungSelesai(pertanyaans) {
@@ -212,7 +232,39 @@
 					timer: 1200
 				})
 				$('#id_pertanyaan').val(data.data.pertanyaan.id_pertanyaan)
-				$('#pertanyaan_text').val(data.data.pertanyaan.pertanyaan_text)
+				// $('#pertanyaan_text').val(data.data.pertanyaan.pertanyaan_text)
+				CKEDITOR.instances.pertanyaan_text.setData(data.data.pertanyaan.pertanyaan_text)
+				if (data.data.pilihan_jawaban.length>0) {
+					let pilihan_jawaban = ''
+					data.data.pilihan_jawaban.forEach((element,index) => {
+						pilihan_jawaban += `<div class="d-flex align-items-center jawaban">
+								<h4 class="m-auto">${alphabet[index]}</h4>
+								<textarea class="form-control ms-2" name="pilihan_jawaban[${index}][pilihan_text]" id="pilihan_text_${index}" rows="1">${element.pilihan_text}</textarea>
+								<input type="hidden" name="pilihan_jawaban[${index}][id_pilihan_jawaban]">
+								<input class="form-control ms-2 file" type="file" name="pilihan_jawaban[${index}][file]" id="file_${index}" accept="image/*">
+								<div class="form-check d-flex align-items-center">
+									<input class="form-check-input m-auto benar" type="radio" name="pilihan_jawaban[${index}][benar]" id="benar_${index}" ${element.benar?'checked':''}>
+									<label class="form-check-label w-fit">
+										Jawaban Benar
+									</label>
+								</div>
+							</div>`
+					});
+					hitungSelesai(data.data.pertanyaans)
+					$('#jawaban_area').html(pilihan_jawaban)
+				} else {
+					$('#jawaban_area').html(`<div class="d-flex align-items-center jawaban">
+								<h4 class="m-auto">${alphabet[0]}</h4>
+								<textarea class="form-control ms-2" name="pilihan_jawaban[0][pilihan_text]" id="pilihan_text_0" rows="1"></textarea>
+								<input class="form-control ms-2 file" type="file" name="pilihan_jawaban[0][file]" id="file_0" accept="image/*">
+								<div class="form-check d-flex align-items-center">
+									<input class="form-check-input m-auto benar" type="radio" name="pilihan_jawaban[0][benar]" id="benar_0">
+									<label class="form-check-label w-fit">
+										Jawaban Benar
+									</label>
+								</div>
+							</div>`)
+				}
 				$('.spinner-div').hide()
 			} else {
 				Swal.fire({
@@ -236,4 +288,10 @@
 			$('#loadingMapNomor').hide()
 		})
 	}
+
+	$('input[type=radio]').change(()=>{
+		console.log('aa');
+		$('.benar').prop('checked',false)
+		$(this).prop('checked',true)
+	})
 </script>

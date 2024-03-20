@@ -21,7 +21,7 @@
 				</div>
 			</div>
 			<hr>
-			<div class="col-12">
+			<div class="col-10">
 				<table class="tblSoal" border="0">
 					<tbody>
 						<tr>
@@ -46,6 +46,26 @@
 					</tbody>
 				</table>
 			</div>
+			{{-- <div class="col-2 map-soal position-relative">
+				<div class="w-100 mb-3 shadow p-2 rounded" id="header-side-soal">
+					<h5 id="totalSelesai" class="text-white"></h5>
+				</div>
+				<div class="overflow-y-scroll d-flex flex-wrap gap-1 w-100 pertanyaanMap" style="max-height: 400px;overflow-y:scroll;overflow-x:visible">
+					@foreach ($pertanyaans as $p)
+						<div class="shadow m-auto bg-white square-box-parent d-flex flex-wrap cursor-pointer select-pertanyaan-area" onclick="getPertanyaan('{{$p->id_pertanyaan}}')">
+							<div class="text-center" style="width: 60px;height:40px"><h4>{{$loop->index+1}}</h4></div>
+							<div class="square-box-child filled-pilihan">{{count($p->pilihan_jawaban)}}</div>
+							<div class="square-box-child filled-jawaban @if(jawabanBenar($p->pilihan_jawaban)=='X') text-danger @endif">{{jawabanBenar($p->pilihan_jawaban)}}</div>
+							<div class="square-box-child filled-file">{{count($p->pertanyaan_file)}}</div>
+						</div>
+					@endforeach
+				</div>
+				<div class="spinner-div" id="loadingMapNomor">
+					<div class="m-auto">
+						<span class="spinner-border" role="status" aria-hidden="true"></span><br> <span>Loading...</span>
+					</div>
+				</div>
+			</div> --}}
 			<hr>
 			<div class="col-12 d-flex mb-4">
 				<div class="p-1 mx-auto">

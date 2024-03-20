@@ -14,7 +14,7 @@
 							</div>
 						</div>
 					</li>
-					<li class="nav-item dropdown dropdown-large">
+					{{-- <li class="nav-item dropdown dropdown-large">
 						<a class="nav-link dropdown-toggle dropdown-toggle-nocaret position-relative" href="#" role="button" data-bs-toggle="dropdown" onclick="notifklik('item1')" aria-expanded="false"> <span class="alert-count" name="item1"></span>
 							<i class='bx bx-bell'></i>
 						</a>
@@ -28,7 +28,7 @@
 							<div class="header-message-list">
 							</div>
 						</div>
-					</li>
+					</li> --}}
 				</ul>
 			</div>
 			<div class="user-box dropdown">

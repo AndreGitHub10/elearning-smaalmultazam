@@ -102,7 +102,7 @@ $title = 'Logo';
 				</a>
 			</li>
 			<li class="{{ ($title == 'Jurnal Guru') ? 'mm-active' : ''}}">
-				<a href="{{route('main.sliderGambar.main')}}">
+				<a href="{{route('guru.jurnal.main')}}">
 					<div class="parent-icon">
 						<i style="color: #fff" class='bx bx-file'></i>
 					</div>

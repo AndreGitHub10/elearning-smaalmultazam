@@ -25,15 +25,22 @@
 						<thead>
 							<tr>
 								<th>No</th>
-								<th>NISN</th>
-								<th>Nama Siswa</th>
-								<th>Jenis Kelamin</th>
-								<th>Alamat</th>
-								<th>Kelas</th>
-								<th>Status</th>
+								<th>Tanggal Upload</th>
+								<th>Isi Jurnal</th>
 								<th>Aksi</th>
 							</tr>
 						</thead>
+						{{-- <tbody>
+							<tr>
+								<td>1</td>
+								<td>{{date('Y-m-d H:i:s')}}</td>
+								<td>1234567</td>
+								<td>Ahmad</td>
+								<td>2045</td>
+								<td>089654415652</td>
+								<td class="text-truncate" style="max-width: 150px">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Esse tempora debitis voluptas rem neque officia ut dolorum perferendis molestias. Repudiandae necessitatibus adipisci facilis culpa sint delectus, repellat quam ut earum?</td>
+							</tr>
+						</tbody> --}}
 					</table>
 				</div>
 			</div>
@@ -51,20 +58,27 @@
 <!--Sweetalert -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-	var routeDatatable = "{{route('elearning.dataSiswa.main')}}";
-	var routeDataSiswaAdd = "{{route('elearning.dataSiswa.add')}}";
-	var routeDataSiswaDelete = "{{route('elearning.dataSiswa.add')}}";
+	var routeDatatable = "{{route('guru.jurnal.main')}}";
+	var routeMateriAdd = "{{route('guru.jurnal.add')}}";
+	var routeMateriView = "{{route('guru.jurnal.add')}}";
+	var routeMateriDelete = "{{route('guru.jurnal.add')}}";
 	$(document).ready( async () => {
-		await dataTable()
+		await dataTable($('#status').val())
 	})
 	
-	async function dataTable() {
+	function filter() {
+		dataTable($('#status').val())
+	}
+	
+	async function dataTable(status='') {
 		const loading = '<div class=spinner-grow text-primary" role="status"> <span class="visually-hidden">Loading...</span></div>'
 		let sDom = `
 		<'row mb-2'
 		<'col-sm-2 templateTambah'>
-		<'col-sm-6 templateTahunAjaran'>
-		<'col-sm-2'f>
+		<'col-sm-2'>
+		<'col-sm-2 templateKelas'>
+		<'col-sm-3 templateTahunAjaran'>
+		<'col-sm-3 templateSemester'>
 		>
 		<'row mt-2'<'col-sm-12'tr>>
 		<'row mt-2'<'col-sm-5'i><'col-sm-7'p>>
@@ -94,25 +108,33 @@
 				},
 			ajax: {
 				url: routeDatatable,
+				data: {status: status},
 			},
 			columns: [
 				{data:'DT_RowIndex', name:'DT_RowIndex', render: (data, type, row)=>{
 					return `<p class="m-0 p-1">${data}</p>`
 				}},
-				{data:'nisn', name:'nisn'},
-				{data:'nama', name:'nama'},
-				{data:'gender', name:'gender'},
-				{data:'alamat', name:'alamat'},
-				{data:'kelas', name:'kelas'},
-				{data:'status', name:'status'},
+				{data:'tanggal', name:'tanggal'},
+				{data:'jurnal', name:'jurnal'},
 				{data:'actions', name:'actions'}
 			],
 		});
 			
 		const templateTambah = `
-			<button onclick="tambahSiswa()" class='btn btn-primary p-2 w-100'><i class='bx bx-plus' ></i>Tambah</button>
+			<button onclick="tambahMateri()" class='btn btn-primary p-2 w-100'><i class='bx bx-plus' ></i>Tambah</button>
 		`;
-
+			
+		const templateKelas = `
+			<div class="d-inline">
+				<label class="my-1 pe-1">Kelas</label>
+				<select name="status" aria-controls="status" class="form-select form-select-sm" id="status" onchange="filter()">
+					<option value="">Semua</option>
+					<option value="1">Aktif</option>
+					<option value="0">Tidak Aktif</option>
+				</select>
+			</div>
+		`;
+			
 		const templateTahunAjaran = `
 			<div class="d-inline">
 				<label class="my-1 pe-1">Tahun Ajaran</label>
@@ -123,14 +145,27 @@
 				</select>
 			</div>
 		`;
-
-		$("div.templateTahunAjaran").html(templateTahunAjaran)
+			
+		const templateSemester = `
+			<div class="d-inline">
+				<label class="my-1 pe-1">Semester</label>
+				<select name="status" aria-controls="status" class="form-select form-select-sm" id="status" onchange="filter()">
+					<option value="">Semua</option>
+					<option value="1">Aktif</option>
+					<option value="0">Tidak Aktif</option>
+				</select>
+			</div>
+		`;
+		
+		$("div.templateKelas").html(templateKelas)
 		$("div.templateTambah").html(templateTambah)
+		$("div.templateTahunAjaran").html(templateTahunAjaran)
+		$("div.templateSemester").html(templateSemester)
 	}
-
-	function tambahSiswa(id='') {
+		
+	function tambahMateri(id='') {
 		$('.main-page').hide();
-		var url = routeDataSiswaAdd
+		var url = routeMateriAdd
 		$.post(url, {id:id})
 		.done(function(data){
 			if(data.status == 'success'){
@@ -145,7 +180,46 @@
 		})
 	}
 	
-	function hapusSiswa(id) {
+	function aktifMateri(id) {
+		var url = routeMateriView
+		$.post(url, {id:id})
+		.done(function(data){
+			console.log(data);
+			if(data.code == 200){
+				Swal.fire({
+					icon: 'success',
+					title: 'Berhasil',
+					text: data.message,
+					showConfirmButton: false,
+					timer: 1200
+				})
+				setTimeout(async ()=>{
+					await dataTable($('#status').val())
+					// $('#dataTabel').DataTable().ajax.reload()
+					// location.reload()
+				}, 1100);
+			} else {
+				Swal.fire({
+					icon: 'warning',
+					title: 'Whoops',
+					text: data.message,
+					showConfirmButton: false,
+					timer: 1300,
+				})
+			}
+		})
+		.fail(() => {
+			Swal.fire({
+				icon: 'error',
+				title: 'Whoops..',
+				text: 'Terjadi kesalahan silahkan ulangi kembali',
+				showConfirmButton: false,
+				timer: 1300,
+			})
+		})
+	}
+	
+	function hapusMateri(id) {
 		Swal.fire({
 			title: "Apakah Anda Yakin?",
 			text: "Data Tersebut Akan Dihapus!",
@@ -156,7 +230,7 @@
 			confirmButtonText: "Ya, Hapus!"
 		}).then((result) => {
 			if (result.isConfirmed) {
-				var url = routeDataSiswaDelete
+				var url = routeMateriDelete
 				$.post(url, {id:id})
 				.done(function(data){
 					console.log(data);
@@ -169,7 +243,7 @@
 							timer: 1200
 						})
 						setTimeout(async ()=>{
-							await dataTable()
+							await dataTable($('#status').val())
 							// $('#dataTabel').DataTable().ajax.reload()
 							// location.reload()
 						}, 1100);

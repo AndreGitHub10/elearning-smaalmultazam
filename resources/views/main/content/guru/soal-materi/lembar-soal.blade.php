@@ -118,7 +118,7 @@
 								<textarea class="form-control ms-2" name="pilihan_jawaban[0][pilihan_text]" id="pilihan_text_0" rows="1"></textarea>
 								<input class="form-control ms-2 file" type="file" name="pilihan_jawaban[0][file]" id="file_0" accept="image/*">
 								<div class="form-check d-flex align-items-center">
-									<input class="form-check-input m-auto benar" type="radio" name="pilihan_jawaban[0][benar]" id="benar_0">
+									<input class="form-check-input m-auto benar" type="radio" name="benar" value="0" id="benar_0">
 									<label class="form-check-label w-fit">
 										Jawaban Benar
 									</label>
@@ -166,7 +166,7 @@
 								<textarea class="form-control ms-2" name="pilihan_jawaban[${jmlJawaban}][pilihan_text]" id="pilihan_text_${jmlJawaban}" rows="1"></textarea>
 								<input class="form-control ms-2 file" type="file" name="pilihan_jawaban[${jmlJawaban}][file]" id="file_${jmlJawaban}" accept="image/*">
 								<div class="form-check d-flex align-items-center">
-									<input class="form-check-input m-auto benar" type="radio" name="pilihan_jawaban[${jmlJawaban}][benar]" id="benar_${jmlJawaban}">
+									<input class="form-check-input m-auto benar" type="radio" name="benar" value="${jmlJawaban}" id="benar_${jmlJawaban}">
 									<label class="form-check-label w-fit">
 										Jawaban Benar
 									</label>
@@ -195,8 +195,33 @@
 			data: data,
 			processData: false,
 			contentType: false,
+		}).done((data)=>{
+			if (data.status=='success') {
+				Swal.fire({
+					icon: 'success',
+					title: 'Berhasil',
+					text: data.message,
+					showConfirmButton: false,
+					timer: 1200
+				})
+			} else {
+				Swal.fire({
+					icon: 'warning',
+					title: 'Gagal',
+					text: data.message,
+					showConfirmButton: false,
+					timer: 1200
+				})
+			}
+		}).fail(()=>{
+			Swal.fire({
+				icon: 'error',
+				title: 'Error',
+				text: data.message,
+				showConfirmButton: false,
+				timer: 1200
+			})
 		})
-		console.log(data);
 	}
 
 	var pertanyaan_text = CKEDITOR.replace('pertanyaan_text', {
@@ -240,10 +265,10 @@
 						pilihan_jawaban += `<div class="d-flex align-items-center jawaban">
 								<h4 class="m-auto">${alphabet[index]}</h4>
 								<textarea class="form-control ms-2" name="pilihan_jawaban[${index}][pilihan_text]" id="pilihan_text_${index}" rows="1">${element.pilihan_text}</textarea>
-								<input type="hidden" name="pilihan_jawaban[${index}][id_pilihan_jawaban]">
+								<input type="hidden" name="pilihan_jawaban[${index}][id_pilihan_jawaban]" value="${element.id_pilihan_jawaban}">
 								<input class="form-control ms-2 file" type="file" name="pilihan_jawaban[${index}][file]" id="file_${index}" accept="image/*">
 								<div class="form-check d-flex align-items-center">
-									<input class="form-check-input m-auto benar" type="radio" name="pilihan_jawaban[${index}][benar]" id="benar_${index}" ${element.benar?'checked':''}>
+									<input class="form-check-input m-auto benar" type="radio" name="benar" value="${index}" id="benar_${index}" ${element.benar?'checked':''}>
 									<label class="form-check-label w-fit">
 										Jawaban Benar
 									</label>
@@ -258,7 +283,7 @@
 								<textarea class="form-control ms-2" name="pilihan_jawaban[0][pilihan_text]" id="pilihan_text_0" rows="1"></textarea>
 								<input class="form-control ms-2 file" type="file" name="pilihan_jawaban[0][file]" id="file_0" accept="image/*">
 								<div class="form-check d-flex align-items-center">
-									<input class="form-check-input m-auto benar" type="radio" name="pilihan_jawaban[0][benar]" id="benar_0">
+									<input class="form-check-input m-auto benar" type="radio" name="benar" value="0" id="benar_0">
 									<label class="form-check-label w-fit">
 										Jawaban Benar
 									</label>
@@ -289,9 +314,4 @@
 		})
 	}
 
-	$('input[type=radio]').change(()=>{
-		console.log('aa');
-		$('.benar').prop('checked',false)
-		$(this).prop('checked',true)
-	})
 </script>

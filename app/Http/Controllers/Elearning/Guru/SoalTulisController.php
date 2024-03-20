@@ -75,20 +75,20 @@ class SoalTulisController extends Controller
 
 	public function createSoal(SoalRequest $request)
 	{
-		DB::connection('elearning')->beginTransaction();
+		DB::beginTransaction();
 		try {
 			if (!$soal = Soal::store($request)) {
-				DB::connection('elearning')->rollback();
+				DB::rollback();
 				return Help::resMsg("Gagal menyimpan soal, coba beberapa saat lagi", 201);
 			}
 			if (!$pertanyaan = Pertanyaan::generatePertanyaan($soal)) {
-				DB::connection('elearning')->rollback();
+				DB::rollback();
 				return Help::resMsg("Gagal menyimpan soal, coba beberapa saat lagi", 201);
 			}
-			DB::connection('elearning')->commit();
+			DB::commit();
 			return Help::resMsg("Berhasil menyimpan soal", 200);
 		} catch (\Throwable $e) {
-			DB::connection('elearning')->rollback();
+			DB::rollback();
 			$logPayload['file'] = $e->getFile();
 			$logPayload['message'] = $e->getMessage();
 			$logPayload['line'] = $e->getLine();
@@ -163,7 +163,7 @@ class SoalTulisController extends Controller
 					$pilihan_jawaban_new = new PilihanJawaban;
 					$pilihan_jawaban_new->pertanyaan_id = $request->id_pertanyaan;
 				}
-				$pilihan_jawaban_new->benar = isset($pilihan_jawaban->benar) ? true : false;
+				$pilihan_jawaban_new->benar = isset($request->benar) ? ($request->benar==$key) : false;
 				$pilihan_jawaban_new->pilihan_text = $pilihan_jawaban->pilihan_text;
 				$pilihan_jawaban_new->prefix_pilihan = $alphabet[$key];
 				if (!empty($pilihan_jawaban->file)) {
@@ -196,14 +196,15 @@ class SoalTulisController extends Controller
 				}
 				if (!$pilihan_jawaban_new->save()) {
 					DB::rollback();
-					return ['status' => 'fail', 'message' => 'Tersimpan'];
+					return ['status' => 'fail', 'message' => 'Gagal menyimpan'];
 				}
 			}
 			if (!$pertanyaan->save()) {
 				DB::rollback();
-				return ['status' => 'fail', 'message' => 'Tersimpan'];
+				return ['status' => 'fail', 'message' => 'Gagal menyimpan'];
 			}
 			DB::commit();
+			return ['status' => 'success', 'message' => 'Tersimpan'];
 		} catch (\Throwable $e) {
 			DB::rollback();
 			$request->merge([

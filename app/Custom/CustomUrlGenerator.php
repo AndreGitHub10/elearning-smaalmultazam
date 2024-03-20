@@ -30,7 +30,7 @@ class CustomUrlGenerator extends UrlGenerator
                 //     ]
                 // ]);
                 // CLog::catchError($request);
-                Log::info($e);
+                // Log::info($e);
                 return '';
             } else {
                 throw $e;

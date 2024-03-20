@@ -25,6 +25,10 @@ class Pertanyaan extends Model
 		return $this->hasMany(PertanyaanFile::class, 'pertanyaan_id', 'id_pertanyaan');
 	}
 
+	public function soal(){
+		return $this->belongsTo(Soal::class, 'soal_id', 'id_soal');
+	}
+
 	public static function generatePertanyaan($request)
 	{
 		if (count(Pertanyaan::where('soal_id', $request->id_soal)->get())) {

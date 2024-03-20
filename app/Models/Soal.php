@@ -24,6 +24,10 @@ class Soal extends Model
 		return $this->belongsTo(Guru::class, 'user_id', 'users_id');
 	}
 
+	public function pertanyaan(){
+		return $this->hasMany(Pertanyaan::class, 'soal_id', 'id_soal');
+	}
+
 	public static function store($request)
 	{
 		$save = new Soal;

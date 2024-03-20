@@ -53,7 +53,7 @@
 								<th>Aksi</th>
 							</tr>
 						</thead>
-						<tbody>
+						{{-- <tbody>
 							<tr>
 								<td>No</td>
 								<td>Nama Mata Pelajaran</td>
@@ -65,7 +65,7 @@
 								<td>Jenis Soal</td>
 								<td><button class="btn btn-primary btnKerjakan"><i class="bx bx-key"></i>Kerjakan</button></td>
 							</tr>
-						</tbody>
+						</tbody> --}}
 					</table>
 				</div>
 			</div>
@@ -85,7 +85,7 @@
 				<p>Waktu pengerjaan 60 menit</p>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn btn-primary btnMulai">MULAI KERJAKAN</button>
+				<button type="button" class="btn btn-primary" id="btn-kerjakan" onclick="mulaiKerjakan()">MULAI KERJAKAN</button>
 			</div>
 		</div>
 	</div>
@@ -100,25 +100,73 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 	var myModal = new bootstrap.Modal(document.getElementById('pendahuluanModal'), {
+		backdrop: 'static',
 		keyboard: false
 	})
-	var routeKerjakan = "{{route('siswa.kerjakan')}}"
+	var routeKerjakan = "{{route('siswa.kerjakan.main')}}"
 	$(document).ready(()=>{
 		$('#dataTable').DataTable({
-			scrollX:true
+			ajax: "{{route('siswa.dashboard')}}",
+			destroy: true,
+			scrollX: true,
+			processing: true,
+			serverSide: true,
+			columns: [
+				{
+					data: 'DT_RowIndex',
+					name: 'DT_RowIndex',
+				},
+				{
+					data: 'mata_pelajaran.nama_mapel',
+					name: 'mata_pelajaran.nama_mapel',
+				},
+				{
+					data: 'judul_soal',
+					name: 'judul_soal',
+				},
+				{
+					data: 'mulai_pengerjaan',
+					name: 'mulai_pengerjaan',
+				},
+				{
+					data: 'selesai_pengerjaan',
+					name: 'selesai_pengerjaan',
+				},
+				{
+					data: 'pertanyaan_count',
+					name: 'pertanyaan_count',
+				},
+				{
+					data: 'kkm',
+					name: 'kkm',
+				},
+				{
+					data: 'DT_RowIndex',
+					name: 'DT_RowIndex',
+				},
+				{
+					data: 'actions',
+					name: 'actions',
+				}
+			]
 		})
 	})
-	
-	$('.btnKerjakan').click((e)=>{
-		e.preventDefault()
-		myModal.show()
-	})
-	
-	$('.btnMulai').click((e)=>{
-		e.preventDefault()
-		window.location = routeKerjakan
-		// console.log(routeKerjakan);
-	})
 
+	async function kerjakanSoal(id){
+		await myModal.show()
+		$('#btn-kerjakan').data('id',id) // Set id soal untuk di passing ke controller
+	}
+	async function mulaiKerjakan(){
+		const id = await $('#btn-kerjakan').data('id')
+		$.post("{{route('siswa.kerjakan.store')}}",{id:id}).done((data, status, xhr)=>{
+			console.log(data)
+			window.location = routeKerjakan
+		}).fail((e)=>{
+			console.log(e)
+		})
+	}
+	$('.btn-close').click( _ => {
+		$('#btn-kerjakan').data('id','') // Reset data id ketika modal di close
+	})
 </script>
 @endpush

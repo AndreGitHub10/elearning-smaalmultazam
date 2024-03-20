@@ -172,8 +172,10 @@ Route::middleware(['auth'])->group(function () {
 
 		# START KERJAKAN SOAL
 		Route::controller(MainController::class)
+		->as('kerjakan.')
 		->group(function () {
-			Route::get('/kerjakan','kerjakan')->name('kerjakan');
+			Route::get('kerjakan','kerjakan')->name('main');
+			Route::post('store','store')->name('store');
 		});
 		# END KERJAKAN SOAL
 	});

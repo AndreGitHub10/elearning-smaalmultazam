@@ -160,19 +160,19 @@
                 }
             }, 1000);
 
-            var countDirect = 5;
-            setInterval(() => {
-                var count = countDirect - 1
-                Swal.fire({
-                    title: "Waktu Ujian Habis",
-                    html: "Ujian berakhir, anda akan diarahkan ke halaman dashboard dalam hitungan ke "+count,
-                    icon: "success",
-                    showConfirmButton: false,
-                    timer: 5000
-                });
-            }, 1000);
-            window.location = "{{ route('siswa.dashboard') }}"
         }
+
+        var countDirect = 5;
+        setInterval(() => {
+            var count = countDirect - 1
+        }, 1000);
+        Swal.fire({
+            title: "Waktu Ujian Habis",
+            html: "Ujian berakhir, anda akan diarahkan ke halaman dashboard dalam hitungan ke "+count,
+            showConfirmButton: false,
+            timer: 5000
+        });
+        window.location = "{{ route('siswa.dashboard') }}"
 
         let btnSelesai = `
             <button class="btn btn-danger btnSelesai" onclick="selesaiMengerjakan()">Selesai</button>

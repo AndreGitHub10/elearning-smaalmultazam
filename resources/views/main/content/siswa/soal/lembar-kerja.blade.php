@@ -163,14 +163,14 @@
             var countDirect = 5;
             setInterval(() => {
                 var count = countDirect - 1
+                Swal.fire({
+                    title: "Waktu Ujian Habis",
+                    html: "Ujian berakhir, anda akan diarahkan ke halaman dashboard dalam hitungan ke "+count,
+                    icon: "success",
+                    showConfirmButton: false,
+                    timer: 5000
+                });
             }, 1000);
-            Swal.fire({
-                title: "Waktu Ujian Habis",
-                html: "Ujian berakhir, anda akan diarahkan ke halaman dashboard dalam hitungan ke "+count,
-                icon: "success",
-                showConfirmButton: false,
-                timer: 5000
-            });
             window.location = "{{ route('siswa.dashboard') }}"
         }
 

@@ -80,9 +80,6 @@
 <body class="bg-white">
     <input type="hidden" name="ids" value="{{ $soal->id_soal }}">
     <input type="hidden" name="idjs" value="{{ $id_jawaban_siswa }}">
-    <input type="hidden" name="durasi" value="{{ $soal->durasi }}">
-    <input type="hidden" name="waktu_mulai" value="{{ $waktu_mulai }}">
-    <input type="hidden" name="batas_waktu" value="{{ $batas_waktu }}">
     <div class="row">
         <div class="col-9">
             <div class="container soal-base">
@@ -128,6 +125,8 @@
         </div>
     </div>
 	@include('main.include.script') <!--importJavaScript-->
+    <!--Sweetalert -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 	<script>
 		$(document).ready(()=>{
             contentSoal()
@@ -135,7 +134,7 @@
 		})
 
         function countDownMengerjakan(){
-            var batasWaktu = new Date($('input[name=batas_waktu]').val());
+            var batasWaktu = new Date("{{ $batas_waktu }}");
 
             var x = setInterval(function() {
                 var now = new Date().getTime();
@@ -160,10 +159,23 @@
                     $(".timer").html("00:00:00");
                 }
             }, 1000);
+
+            var countDirect = 5;
+            setInterval(() => {
+                var count = countDirect - 1
+            }, 1000);
+            Swal.fire({
+                title: "Waktu Ujian Habis",
+                html: "Ujian berakhir, anda akan diarahkan ke halaman dashboard dalam hitungan ke "+count,
+                icon: "success",
+                showConfirmButton: false,
+                timer: 5000
+            });
+            window.location = "{{ route('siswa.dashboard') }}"
         }
 
         let btnSelesai = `
-            <button class="btn btn-danger btnSelesai">Selesai</button>
+            <button class="btn btn-danger btnSelesai" onclick="selesaiMengerjakan()">Selesai</button>
         `
         let loading = `
             <div class="spinner-div text-center" id="loadingMapNomor">
@@ -221,6 +233,27 @@
                 $('#soal-box-'+nU).removeClass('soal-box-proses')
                 $('#soal-box-'+nU).addClass('soal-box-proses')
             }
+        }
+
+        function selesaiMengerjakan(){
+            Swal.fire({
+                icon: 'question',
+                title: 'Konfirmasi',
+                html: 'Anda yakin ingin mengakhiri ujian ini?, <br>periksa kembali dan pastikan jawaban anda!',
+                showCancelButton: true,
+                confirmButtonText: "Ya, akhiri"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: "Terimaksih",
+                        text: "Ujian selesai dikerjakan",
+                        icon: "success",
+                        showConfirmButton: false,
+                        timer: 2500
+                    });
+                    window.location = "{{ route('siswa.dashboard') }}"
+                }
+            });
         }
 	</script>
 </body>

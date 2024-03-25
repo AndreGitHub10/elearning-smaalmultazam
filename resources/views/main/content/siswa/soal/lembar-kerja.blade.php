@@ -135,12 +135,11 @@
 		})
 
         function countDownMengerjakan(){
-            var waktuMulai = new Date($('input[name=durasi]').val());
             var batasWaktu = new Date($('input[name=batas_waktu]').val());
 
             var x = setInterval(function() {
                 var now = new Date().getTime();
-                var distance = batasWaktu - now;
+                var distance = batasWaktu.getTime() - now;
 
                 var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));

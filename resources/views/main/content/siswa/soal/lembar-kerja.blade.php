@@ -157,18 +157,7 @@
                 if (distance < 0) {
                     clearInterval(x);
                     $(".timer").html("00:00:00");
-
-                    var countDirect = 5;
-                    setInterval(() => {
-                        var count = countDirect - 1
-                    }, 1000);
-                    Swal.fire({
-                        title: "Waktu Ujian Habis",
-                        html: "Ujian berakhir, anda akan diarahkan ke halaman dashboard dalam hitungan ke "+count,
-                        showConfirmButton: false,
-                        timer: 5000
-                    });
-                    window.location = "{{ route('siswa.dashboard') }}"
+                    witingTime("Waktu Habis!")
                 }
             }, 1000);
 
@@ -235,6 +224,19 @@
             }
         }
 
+        function witingTime(title){
+            Swal.fire({
+                title: title,
+                html: 'Ujian selesai dikerjakan, <br>tunggu anda akan dialihkan ke dashboard siswa',
+                icon: "success",
+                showConfirmButton: false,
+                timer: 2500
+            })
+            setTimeout(() => {
+                window.location = "{{ route('siswa.dashboard') }}"
+            }, 2500);
+        }
+
         function selesaiMengerjakan(){
             Swal.fire({
                 icon: 'question',
@@ -244,14 +246,7 @@
                 confirmButtonText: "Ya, akhiri"
             }).then((result) => {
                 if (result.isConfirmed) {
-                    Swal.fire({
-                        title: "Terimaksih",
-                        text: "Ujian selesai dikerjakan",
-                        icon: "success",
-                        showConfirmButton: false,
-                        timer: 2500
-                    });
-                    window.location = "{{ route('siswa.dashboard') }}"
+                    witingTime("Terimakasih")
                 }
             });
         }

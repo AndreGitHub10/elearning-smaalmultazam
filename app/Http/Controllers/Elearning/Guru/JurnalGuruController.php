@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\JurnalGuru;
 use Illuminate\Http\Request;
 use DataTables, Help, CLog, Auth;
+use Illuminate\Support\Facades\Validator;
 
 class JurnalGuruController extends Controller
 {
@@ -38,5 +39,39 @@ class JurnalGuruController extends Controller
         $data['jurnal'] = JurnalGuru::find($request->id);
         $content = view('main.content.guru.jurnal.form', $data)->render();
         return ['status' => 'success', 'content' => $content];
+    }
+
+    public function save(Request $request)
+    {
+        $params = [
+            'jurnal' => 'required',
+            'tanggal_upload' => 'required',
+        ];
+        $message = [
+            'jurnal.required' => 'Jurnal harus diisi',
+            'tanggal_upload.required' => 'Tanggal Upload harus diisi',
+        ];
+        $validator = Validator::make($request->all(), $params, $message);
+        if ($validator->fails()) {
+            foreach ($validator->errors()->toArray() as $key => $val) {
+                $msg = $val[0]; # Get validation messages, only one
+                break;
+            }
+            return ['status' => 'fail', 'message' => $msg];
+        }
+
+        if (!empty($request->id)) {
+            if(!$jurnal=JurnalGuru::where('id_jurnal',$request->id)->first()) {
+                return ['status' => 'fail', 'message' => 'Gagal menyimpan, data tidak ditemukan'];
+            }
+        } else {
+            $jurnal = new JurnalGuru;
+        }
+        $jurnal->jurnal = $request->jurnal;
+        $jurnal->tanggal_upload = date('Y-m-d H:i:s',strtotime($request->tanggal_upload));
+        if (!$jurnal->save()) {
+            return ['status' => 'fail', 'message' => 'Gagal menyimpan, Coba Lagi!'];
+        }
+        return ['status' => 'success', 'message' => 'Berhasil menyimpan Jurnal'];
     }
 }

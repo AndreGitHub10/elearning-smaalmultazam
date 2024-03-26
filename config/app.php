@@ -177,7 +177,7 @@ return [
         Yajra\DataTables\DataTablesServiceProvider::class,
 
         App\Providers\CustomUrlGeneratorProvider::class,
-
+        Maatwebsite\Excel\ExcelServiceProvider::class,
     ],
 
     /*
@@ -234,6 +234,7 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
         'Help' => App\Helpers\Helpers::class,
         'CLog' => App\Helpers\Logger::class,
+        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
 
     ],
 

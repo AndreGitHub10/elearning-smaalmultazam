@@ -1,3 +1,4 @@
+<link rel="stylesheet" type="text/css" href="{{asset('zoom/css/jquery.pan.css')}}"><!--zoomImage-->
 <style>
 	.filled-file {
 		background-color: #d6d4ff;
@@ -52,6 +53,22 @@
 		display: ruby-text;
 		margin: auto;
 	}
+	.pertanyaanMap .active {
+		background-color: #a8a8f7;
+	}
+	.pertanyaanMap .done {
+		background-color: aquamarine;
+	}
+	.outputArea {
+		min-height: 200px;
+	}
+	.btnTambahGambar,
+	.btnTambahVideo,
+	.btnTambahAudio,
+	.btnTambahLink {
+		color: #0000FF;
+		border: dashed 2px #0000FF;
+	}
 </style>
 @php
 	$alphabet = range('A','Z');
@@ -75,6 +92,7 @@
 						<div class="mb-3">
 							<label for="judul_soal" class="form-label">Judul Soal</label>
 							<input type="text" class="form-control" name="judul_soal" id="judul_soal" placeholder="Judul Materi" @isset($soal) value="{{$soal->judul_soal}}" @endisset disabled>
+							<input type="hidden" class="form-control" name="id_soal" id="id_soal" placeholder="Judul Materi" @isset($soal) value="{{$soal->id_soal}}" @endisset>
 						</div>
 					</div>
 					<hr>
@@ -97,10 +115,10 @@
 						<div class="overflow-y-scroll d-flex flex-wrap gap-1 w-100 pertanyaanMap" style="max-height: 400px;overflow-y:scroll;overflow-x:visible">
 							@foreach ($pertanyaans as $p)
 								<div class="shadow m-auto bg-white square-box-parent d-flex flex-wrap cursor-pointer select-pertanyaan-area" onclick="getPertanyaan('{{$p->id_pertanyaan}}')">
-									<div class="text-center" style="width: 60px;height:40px"><h4>{{$loop->index+1}}</h4></div>
-									<div class="square-box-child filled-pilihan">{{count($p->pilihan_jawaban)}}</div>
-									<div class="square-box-child filled-jawaban @if(jawabanBenar($p->pilihan_jawaban)=='X') text-danger @endif">{{jawabanBenar($p->pilihan_jawaban)}}</div>
-									<div class="square-box-child filled-file">{{count($p->pertanyaan_file)}}</div>
+									<div class="text-center pertanyaan" style="width: 60px;height:40px" id="pertanyaan_{{$loop->index+1}}"><h4 id="nomor_{{$loop->index+1}}">{{$loop->index+1}}</h4></div>
+									<div class="square-box-child filled-pilihan" id="pilihan_{{$loop->index+1}}">{{count($p->pilihan_jawaban)}}</div>
+									<div class="square-box-child filled-jawaban @if(jawabanBenar($p->pilihan_jawaban)=='X') text-danger @endif" id="jawaban_{{$loop->index+1}}">{{jawabanBenar($p->pilihan_jawaban)}}</div>
+									<div class="square-box-child filled-file" id="file_{{$loop->index+1}}">{{count($p->pertanyaan_file)}}</div>
 								</div>
 							@endforeach
 						</div>
@@ -109,6 +127,10 @@
 								<span class="spinner-border" role="status" aria-hidden="true"></span><br> <span>Loading...</span>
 							</div>
 						</div>
+					</div>
+					<div class="col-12 mb-3">
+						<label class="form-label" for="file_penunjang">File Pendukung</label>
+						<button class="btn btn-primary btnPendukung ms-3"><i class='bx bx-folder-open'></i> File</button>
 					</div>
 					<div class="col-12 position-relative">
 						<label for="pilihan_jawaban" class="form-label">Pilihan Jawaban</label>
@@ -139,7 +161,9 @@
 			</div>
 		</form>
 	</div>
+	<div class="col-12 modalArea"></div>
 </div>
+<script src="{{asset('zoom/js/jquery.pan.js')}}"></script><!--zoomImage-->
 <script>
 	var routeGetPertanyaan = "{{route('guru.soalTulis.pertanyaanForm')}}"
 	var alphabet = ['A','B','C','D','E']
@@ -204,6 +228,8 @@
 					showConfirmButton: false,
 					timer: 1200
 				})
+				refreshMapPertanyaan(data.data.pertanyaans)
+				hitungSelesai(data.data.pertanyaans)
 			} else {
 				Swal.fire({
 					icon: 'warning',
@@ -257,8 +283,10 @@
 					timer: 1200
 				})
 				$('#id_pertanyaan').val(data.data.pertanyaan.id_pertanyaan)
+				refreshMapPertanyaan(data.data.pertanyaans)
 				// $('#pertanyaan_text').val(data.data.pertanyaan.pertanyaan_text)
 				CKEDITOR.instances.pertanyaan_text.setData(data.data.pertanyaan.pertanyaan_text)
+				hitungSelesai(data.data.pertanyaans)
 				if (data.data.pilihan_jawaban.length>0) {
 					let pilihan_jawaban = ''
 					data.data.pilihan_jawaban.forEach((element,index) => {
@@ -275,7 +303,6 @@
 								</div>
 							</div>`
 					});
-					hitungSelesai(data.data.pertanyaans)
 					$('#jawaban_area').html(pilihan_jawaban)
 				} else {
 					$('#jawaban_area').html(`<div class="d-flex align-items-center jawaban">
@@ -314,4 +341,57 @@
 		})
 	}
 
+	function refreshMapPertanyaan(pertanyaans) {
+		$('.pertanyaan').removeClass('active')
+		$('.pertanyaan').removeClass('done')
+		pertanyaans.forEach((element,index) => {
+			$(`#pilihan_${index+1}`).html(element.pilihan_jawaban.length)
+			$(`#jawaban_${index+1}`).html(jawabanBenar(element.pilihan_jawaban))
+			if ($('#id_pertanyaan').val()==element.id_pertanyaan) {
+				$(`#pertanyaan_${index+1}`).addClass('active')
+			} else if (element.pilihan_jawaban.length>0&&jawabanBenar(element.pilihan_jawaban)!='X') {
+				$(`#pertanyaan_${index+1}`).addClass('done')
+			}
+		});
+	}
+
+	function jawabanBenar(pilihan_jawaban) {
+		let j = 'X';
+		pilihan_jawaban.forEach((element,index) => {
+			if (element.benar) {
+				j = alphabet[index];
+			}
+		});
+		return j;
+	}
+
+	$('.btnPendukung').click((e)=>{
+		e.preventDefault()
+		$('.btnPendukung').attr('disabled',true).html('<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>LOADING...')
+		$.get("{{route('guru.soalTulis.getPertanyaanFile')}}",{id_pertanyaan:$('#id_pertanyaan').val()})
+		.done(function(data){
+			if (data.status=='success') {
+				$('.modalArea').html(data.content)
+			} else {
+				Swal.fire({
+					icon: 'warning',
+					title: 'Whoops',
+					text: data.message,
+					showConfirmButton: false,
+					timer: 1300,
+				})
+			}
+			$('.btnPendukung').attr('disabled',false).html("<i class='bx bx-folder-open'></i> File")
+		})
+		.fail(()=>{
+			Swal.fire({
+				icon: 'error',
+				title: 'Whoops..',
+				text: 'Terjadi kesalahan silahkan ulangi kembali',
+				showConfirmButton: false,
+				timer: 1300,
+			})
+			$('.btnPendukung').attr('disabled',false).html("<i class='bx bx-folder-open'></i> File")
+		})
+	})
 </script>

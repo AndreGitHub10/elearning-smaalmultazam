@@ -19,8 +19,8 @@
 					<div class="row">
 						<div class="col-3">
 							<div class="mb-3">
-								<label for="kelas" class="form-label">Kelas *</label>
-								<select name="kelas" id="kelas" class="form-control selectpicker select2">
+								<label for="kelas_id" class="form-label">Kelas *</label>
+								<select name="kelas_id" id="kelas_id" class="form-control selectpicker select2">
 									<option value="" disabled>-PILIH-</option>
 									@foreach ($kelas as $item)
 									<option value="{{$item->id_kelas}}">{{$item->nama_kelas}}</option>
@@ -30,8 +30,8 @@
 						</div>
 						<div class="col-3">
 							<div class="mb-3">
-								<label for="tahunAjaran" class="form-label">Tahun Ajaran *</label>
-								<select name="tahunAjaran" id="tahunAjaran" class="form-control selectpicker select2">
+								<label for="tahun_ajaran_id" class="form-label">Tahun Ajaran *</label>
+								<select name="tahun_ajaran_id" id="tahun_ajaran_id" class="form-control selectpicker select2">
 									<option value="" disabled>-PILIH-</option>
 									@foreach ($tahunAjaran as $item)
 									<option value="{{$item->id_tahun_ajaran}}">{{$item->nama_tahun_ajaran}}</option>
@@ -51,8 +51,8 @@
 						</div>
 						<div class="col-3">
 							<div class="mb-3">
-								<label for="mataPelajaran" class="form-label">Mata Pelajaran *</label>
-								<select name="mataPelajaran" id="mataPelajaran" class="form-control selectpicker select2">
+								<label for="mapel_id" class="form-label">Mata Pelajaran *</label>
+								<select name="mapel_id" id="mapel_id" class="form-control selectpicker select2">
 									<option value="" disabled>-PILIH-</option>
 									@foreach ($mataPelajaran as $item)
 									<option value="{{$item->id_mapel}}">{{$item->nama_mapel}}</option>
@@ -62,13 +62,15 @@
 						</div>
 					</div>
 					<div class="mb-3">
-						<label for="pdf" class="form-label">Upload File Materi (Pdf) *</label>
-						<input type="file" class="form-control" id="pdf" name="pdf">
+						<label for="file_materi" class="form-label">Upload File Materi (Pdf/Doc/PPT) *</label>
+						<br>
+						<a target="_blank" href="{{url('uploads/materi')}}/@isset($materi){{$materi->file_materi}}@endisset">@isset($materi) {{$materi->file_materi}} @endisset</a>
+						<input type="file" class="form-control" id="file_materi" name="file_materi" accept=".pdf, .doc, .docx, .ppt">
 					</div>
 					<div class="row mb-3">
 						<div class="col-md-12">
 							<label for="deskripsi_materi">Keterangan</label>
-							<textarea class="form-control" id="deskripsi_materi" name="deskripsi_materi" rows="10"></textarea>
+							<textarea class="form-control" id="deskripsi_materi" name="deskripsi_materi" rows="10">@isset($materi) {{$materi->deskripsi_materi}} @endisset</textarea>
 						</div>
 					</div>
 					<hr>
@@ -101,7 +103,7 @@
 		var data = new FormData($('#formMateri')[0])
 		$('.btnSimpan').attr('disabled',true).html('<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>LOADING...')
 		$.ajax({
-				url: '{{route("main.menuUtama.agendaEvent.save")}}',
+				url: '{{route("guru.materi.save")}}',
 				type: 'POST',
 				data: data,
 				async: true,
@@ -109,7 +111,7 @@
 				contentType: false,
 				processData: false,
 				success: function(data){
-					if(data.code==200){
+					if(data.status=='success'){
 						Swal.fire({
 							icon: 'success',
 							title: 'Berhasil',

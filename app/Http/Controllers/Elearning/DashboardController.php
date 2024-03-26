@@ -8,6 +8,9 @@ use Auth;
 
 class DashboardController extends Controller
 {
+
+    public function __construct()
+    { }
     public function main()
     {
         if (Auth::User()->level_user == '4') {

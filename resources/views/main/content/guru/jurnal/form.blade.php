@@ -14,8 +14,14 @@
 					<input type="hidden" name="id" @isset($jurnal) value="{{$jurnal->id_jurnal}}" @endisset>
 					<div class="row mb-3">
 						<div class="col-md-12">
-							<label for="jurnal">Jurnal</label>
-							<textarea class="form-control" id="jurnal" name="jurnal" rows="10"></textarea>
+							<label for="tanggal">Tanggal</label>
+							<input class="form-control" id="tanggal" name="tanggal" value="@if(isset($jurnal)){{$jurnal->tanggal_upload}}@else{{date('Y-m-d')}}@endif" disabled>
+						</div>
+					</div>
+					<div class="row mb-3">
+						<div class="col-md-12">
+							<label for="jurnal">Jurnal *</label>
+							<textarea class="form-control" id="jurnal" name="jurnal" rows="10">@isset($jurnal) {{$jurnal->jurnal}} @endisset</textarea>
 						</div>
 					</div>
 					<hr>

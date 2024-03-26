@@ -14,6 +14,7 @@ use App\Models\TahunAjaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Libraries\compressFile;
+use App\Models\PertanyaanFile;
 use Auth, Help, CLog, DB, DataTables, GRes;
 
 class SoalTulisController extends Controller
@@ -117,9 +118,9 @@ class SoalTulisController extends Controller
 		if (!$data['soal'] = Soal::where('id_soal', $request->id_soal)->first()) {
 			return ['status' => 'fail', 'message' => 'Soal tidak ditemukan'];
 		}
-		$data['pertanyaans'] = Pertanyaan::select('id_pertanyaan')->selectRaw("(case when (pertanyaan.pertanyaan_text='' or pertanyaan.pertanyaan_text is null) then false else true end) as pertanyaan_text")->with(['pilihan_jawaban', 'pertanyaan_file'])->where('soal_id', $request->id_soal)->get();
+		$data['pertanyaans'] = Pertanyaan::getPertanyaans($request);
 		if (isset($request->id_pertanyaan)) {
-			if (!$data['pertanyaan'] = Pertanyaan::where('id_pertanyaan', $request->id_pertanyaan)->first()) {
+			if (!$data['pertanyaan'] = Pertanyaan::where('id_pertanyaan', $request->id_pertanyaan)->with('pertanyaan_file')->first()) {
 				return ['status' => 'fail', 'message' => 'Pertanyaan tidak ditemukan'];
 			}
 			$data['pilihan_jawaban'] = PilihanJawaban::where('pertanyaan_id', $data['pertanyaan']->id_pertanyaan)->get();
@@ -133,9 +134,11 @@ class SoalTulisController extends Controller
 	{
 		$params = [
 			'id_pertanyaan' => 'required',
+			'id_soal' => 'required',
 		];
 		$message = [
 			'id_pertanyaan.required' => 'ID Pertanyaan harus diisi',
+			'id_soal.required' => 'ID Soal harus diisi',
 		];
 		$validator = Validator::make($request->all(), $params, $message);
 		if ($validator->fails()) {
@@ -163,7 +166,7 @@ class SoalTulisController extends Controller
 					$pilihan_jawaban_new = new PilihanJawaban;
 					$pilihan_jawaban_new->pertanyaan_id = $request->id_pertanyaan;
 				}
-				$pilihan_jawaban_new->benar = isset($request->benar) ? ($request->benar==$key) : false;
+				$pilihan_jawaban_new->benar = isset($request->benar) ? ($request->benar == $key) : false;
 				$pilihan_jawaban_new->pilihan_text = $pilihan_jawaban->pilihan_text;
 				$pilihan_jawaban_new->prefix_pilihan = $alphabet[$key];
 				if (!empty($pilihan_jawaban->file)) {
@@ -204,7 +207,136 @@ class SoalTulisController extends Controller
 				return ['status' => 'fail', 'message' => 'Gagal menyimpan'];
 			}
 			DB::commit();
-			return ['status' => 'success', 'message' => 'Tersimpan'];
+			$data['pertanyaans'] = Pertanyaan::getPertanyaans($request);
+			return ['status' => 'success', 'message' => 'Tersimpan', 'data' => $data];
+		} catch (\Throwable $e) {
+			DB::rollback();
+			$request->merge([
+				'file' => $e->getFile(),
+				'message' => $e->getMessage(),
+				'line' => $e->getLine(),
+			]);
+			CLog::catchError($request);
+			return Help::resMsg(null, 500);
+		}
+	}
+
+	public function getPertanyaanFile(Request $request)
+	{
+		$data['id_pertanyaan'] = $request->id_pertanyaan;
+		$data['pertanyaan_file'] = PertanyaanFile::where('pertanyaan_id', $request->id_pertanyaan)->get();
+		// return $data;
+		$content = view('main.content.guru.soal-materi.modal-file', $data)->render();
+		return ['status' => 'success', 'message' => 'File berhasil ditemukan', 'content' => $content];
+	}
+
+	public function storePertanyaanFile(Request $request)
+	{
+		$params = [
+			'id_pertanyaan' => 'required',
+		];
+		$message = [
+			'id_pertanyaan.required' => 'ID Pertanyaan harus diisi',
+		];
+		$validator = Validator::make($request->all(), $params, $message);
+		if ($validator->fails()) {
+			foreach ($validator->errors()->toArray() as $key => $val) {
+				$msg = $val[0]; # Get validation messages, only one
+				break;
+			}
+			return ['status' => 'fail', 'message' => $msg];
+		}
+		try {
+			DB::beginTransaction();
+			if (isset($request->file_gambar)) {
+				if (!$pertanyaan_file = PertanyaanFile::where('pertanyaan_id', $request->id_pertanyaan)->where('type_file', 'gambar')->first()) {
+					$pertanyaan_file = new PertanyaanFile;
+					$pertanyaan_file->pertanyaan_id = $request->id_pertanyaan;
+				}
+				if ($pertanyaan_file->file != '') {
+					if (file_exists('uploads/elearning/pertanyaan/' . $pertanyaan_file->file)) {
+						unlink('uploads/elearning/pertanyaan/' . $pertanyaan_file->file);
+					}
+				}
+				$ukuranFile1 = filesize($request->file_gambar);
+				if ($ukuranFile1 <= 500000) {
+					$ext_foto1 = $request->file_gambar->getClientOriginalExtension();
+					$filename1 = "soal_gambar" . date('Ymd-His') . "." . $ext_foto1;
+					$temp_foto1 = 'uploads/elearning/pertanyaan/';
+					$proses1 = $request->file_gambar->move($temp_foto1, $filename1);
+					$pertanyaan_file->file = $filename1;
+					$pertanyaan_file->type_file = 'gambar';
+				} else {
+					$file1 = $_FILES['file_gambar']['name'];
+					$ext_foto1 = $request->file_gambar->getClientOriginalExtension();
+					if (!empty($file1)) {
+						$direktori1 = 'uploads/elearning/pertanyaan/'; //tempat upload foto
+						$name1 = 'file_gambar'; //name pada input type file
+						$namaBaru1 = "soal_gambar" . date('Ymd-His'); //name pada input type file
+						$quality1 = 50; //konversi kualitas gambar dalam satuan %
+						$upload1 = compressFile::UploadCompress($namaBaru1, $name1, $direktori1, $quality1);
+					}
+					$pertanyaan_file->file = $namaBaru1 . "." . $ext_foto1;
+					$pertanyaan_file->type_file = 'gambar';
+				}
+				if (!$pertanyaan_file->save()) {
+					DB::rollback();
+					return ['status' => 'fail', 'message' => 'Gagal menyimpan'];
+				}
+			}
+			if (isset($request->file_audio)) {
+				if (!$pertanyaan_file_audio = PertanyaanFile::where('pertanyaan_id', $request->id_pertanyaan)->where('type_file', 'audio')->first()) {
+					$pertanyaan_file_audio = new PertanyaanFile;
+					$pertanyaan_file_audio->pertanyaan_id = $request->id_pertanyaan;
+				}
+				if ($pertanyaan_file_audio->file != '') {
+					if (file_exists('uploads/elearning/pertanyaan/' . $pertanyaan_file_audio->file)) {
+						unlink('uploads/elearning/pertanyaan/' . $pertanyaan_file_audio->file);
+					}
+				}
+				$ukuranFile1 = filesize($request->file_audio);
+				if ($ukuranFile1 <= 5000000) {
+					$ext_foto1 = $request->file_audio->getClientOriginalExtension();
+					$filename1 = "soal_audio" . date('Ymd-His') . "." . $ext_foto1;
+					$temp_foto1 = 'uploads/elearning/pertanyaan/';
+					$proses1 = $request->file_audio->move($temp_foto1, $filename1);
+					$pertanyaan_file_audio->file = $filename1;
+					$pertanyaan_file_audio->type_file = 'audio';
+				} else {
+					DB::rollback();
+					return ['status' => 'fail', 'message' => 'Gagal menyimpan, Maksimal audio size adalah 5 MB'];
+				}
+				if (!$pertanyaan_file_audio->save()) {
+					DB::rollback();
+					return ['status' => 'fail', 'message' => 'Gagal menyimpan'];
+				}
+			}
+			if (isset($request->file_video)) {
+				if (!$pertanyaan_file_video = PertanyaanFile::where('pertanyaan_id', $request->id_pertanyaan)->where('type_file', 'video')->first()) {
+					$pertanyaan_file_video = new PertanyaanFile;
+					$pertanyaan_file_video->pertanyaan_id = $request->id_pertanyaan;
+				}
+				$pertanyaan_file_video->file = $request->file_video;
+				$pertanyaan_file_video->type_file = 'video';
+				if (!$pertanyaan_file_video->save()) {
+					DB::rollback();
+					return ['status' => 'fail', 'message' => 'Gagal menyimpan'];
+				}
+			}
+			if (isset($request->file_link)) {
+				if (!$pertanyaan_file_link = PertanyaanFile::where('pertanyaan_id', $request->id_pertanyaan)->where('type_file', 'link')->first()) {
+					$pertanyaan_file_link = new PertanyaanFile;
+					$pertanyaan_file_link->pertanyaan_id = $request->id_pertanyaan;
+				}
+				$pertanyaan_file_link->file = $request->file_link;
+				$pertanyaan_file_link->type_file = 'link';
+				if (!$pertanyaan_file_link->save()) {
+					DB::rollback();
+					return ['status' => 'fail', 'message' => 'Gagal menyimpan'];
+				}
+			}
+			DB::commit();
+			return ['status' => 'success', 'message' => 'Berhasil menyimpan'];
 		} catch (\Throwable $e) {
 			DB::rollback();
 			$request->merge([

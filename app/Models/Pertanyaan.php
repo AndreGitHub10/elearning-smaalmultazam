@@ -45,4 +45,8 @@ class Pertanyaan extends Model
 		}
 		return true;
 	}
+
+	public static function getPertanyaans($request) {
+		return Pertanyaan::select('id_pertanyaan')->selectRaw("(case when (pertanyaan.pertanyaan_text='' or pertanyaan.pertanyaan_text is null) then false else true end) as pertanyaan_text")->with(['pilihan_jawaban', 'pertanyaan_file'])->where('soal_id', $request->id_soal)->get();
+	}
 }

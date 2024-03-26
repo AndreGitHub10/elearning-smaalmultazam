@@ -10,11 +10,13 @@ use App\Http\Controllers\Elearning\Admin\MateriElearningController;
 use App\Http\Controllers\Elearning\Admin\TahunAjaranController;
 use App\Http\Controllers\Elearning\DashboardController;
 use App\Http\Controllers\Elearning\Guru\JurnalGuruController;
+use App\Http\Controllers\Elearning\Guru\MateriController;
 use App\Http\Controllers\Elearning\Guru\ProfilGuruController;
 use App\Http\Controllers\Elearning\Guru\SoalTulisController;
 use App\Http\Controllers\Elearning\Siswa\DashboardController as DashboardSiswa;
 use App\Http\Controllers\Elearning\Siswa\MainController;
 use App\Http\Controllers\Error\ErrorController;
+use App\Http\Controllers\TestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -136,6 +138,7 @@ Route::middleware(['auth'])->group(function () {
 				->as('profilGuru.')
 				->group(function () {
 					Route::get('/', 'main')->name('main');
+					Route::post('/save', 'save')->name('save');
 				});
 			# END PROFIL GURU
 
@@ -146,6 +149,8 @@ Route::middleware(['auth'])->group(function () {
 				->group(function () {
 					Route::get('/', 'main')->name('main');
 					Route::post('/add', 'add')->name('add');
+					Route::post('/save', 'save')->name('save');
+					Route::post('/delete', 'delete')->name('delete');
 				});
 			# END MATERI
 
@@ -169,6 +174,8 @@ Route::middleware(['auth'])->group(function () {
 					Route::post('/create-soal', 'createSoal')->name('createSoal');
 					Route::post('/pertanyaan-form', 'pertanyaanForm')->name('pertanyaanForm');
 					Route::post('/pertanyaan-store', 'pertanyaanStore')->name('pertanyaanStore');
+					Route::get('/get-pertanyaan-file', 'getPertanyaanFile')->name('getPertanyaanFile');
+					Route::post('/store-pertanyaan-file', 'storePertanyaanFile')->name('storePertanyaanFile');
 				});
 			# END SOAL TULIS
 		});
@@ -183,15 +190,16 @@ Route::middleware(['auth'])->group(function () {
 			Route::get('/', [DashboardSiswa::class, 'main'])->name('dashboard');
 			# END DASHBOARD
 
-		# START KERJAKAN SOAL
-		Route::controller(MainController::class)
-		->as('kerjakan.')
-		->group(function () {
-			Route::get('kerjakan','kerjakan')->name('main');
-			Route::post('store','store')->name('store');
+			# START KERJAKAN SOAL
+			Route::controller(MainController::class)
+				->as('kerjakan.')
+				->group(function () {
+					Route::get('kerjakan', 'kerjakan')->name('main');
+					Route::post('store', 'store')->name('store');
+				});
+			# END KERJAKAN SOAL
 		});
-		# END KERJAKAN SOAL
-	});
 	# END MIDDLEWARE SISWA
 });
 # END MIDDLEWARE AUTH
+Route::get('/import', [TestController::class, 'import'])->name('import');

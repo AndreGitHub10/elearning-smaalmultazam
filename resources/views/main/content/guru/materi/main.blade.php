@@ -59,10 +59,10 @@
 <!--Sweetalert -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-	var routeDatatable = "{{route('elearning.materi.main')}}";
-	var routeMateriAdd = "{{route('elearning.materi.add')}}";
-	var routeMateriView = "{{route('elearning.materi.add')}}";
-	var routeMateriDelete = "{{route('elearning.materi.add')}}";
+	var routeDatatable = "{{route('guru.materi.main')}}";
+	var routeMateriAdd = "{{route('guru.materi.add')}}";
+	var routeMateriView = "{{route('guru.materi.add')}}";
+	var routeMateriDelete = "{{route('guru.materi.delete')}}";
 	$(document).ready( async () => {
 		await dataTable($('#status').val())
 	})
@@ -237,7 +237,7 @@
 				$.post(url, {id:id})
 				.done(function(data){
 					console.log(data);
-					if(data.code == 200){
+					if(data.status == 'success'){
 						Swal.fire({
 							icon: 'success',
 							title: 'Berhasil',

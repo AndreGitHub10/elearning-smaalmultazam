@@ -152,15 +152,15 @@
 		})
 	})
 
-	async function kerjakanSoal(id){
+	async function kerjakanSoal(id,pendahuluan){
 		await myModal.show()
 		$('#btn-kerjakan').data('id',id) // Set id soal untuk di passing ke controller
+        $('.modal-body').html(pendahuluan)
 	}
 	async function mulaiKerjakan(){
 		const id = await $('#btn-kerjakan').data('id')
-		$.post("{{route('siswa.kerjakan.store')}}",{id:id}).done((data, status, xhr)=>{
-			console.log(data)
-			window.location = routeKerjakan
+		$.post("{{route('siswa.kerjakan.store')}}",{ids:id}).done((data, status, xhr)=>{
+			window.location = routeKerjakan+'?ids='+id+'&idjs='+data.response.id_jawaban_siswa
 		}).fail((e)=>{
 			console.log(e)
 		})

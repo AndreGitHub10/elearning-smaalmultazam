@@ -190,15 +190,16 @@ Route::middleware(['auth'])->group(function () {
 			Route::get('/', [DashboardSiswa::class, 'main'])->name('dashboard');
 			# END DASHBOARD
 
-			# START KERJAKAN SOAL
-			Route::controller(MainController::class)
-				->as('kerjakan.')
-				->group(function () {
-					Route::get('kerjakan', 'kerjakan')->name('main');
-					Route::post('store', 'store')->name('store');
-				});
-			# END KERJAKAN SOAL
+		# START KERJAKAN SOAL
+		Route::controller(MainController::class)
+		->as('kerjakan.')
+		->group(function () {
+			Route::get('kerjakan','kerjakan')->name('main');
+			Route::get('contentSoal','contentSoal')->name('contentSoal');
+			Route::post('store','store')->name('store');
 		});
+		# END KERJAKAN SOAL
+	});
 	# END MIDDLEWARE SISWA
 });
 # END MIDDLEWARE AUTH

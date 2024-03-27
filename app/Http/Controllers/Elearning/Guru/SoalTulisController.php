@@ -152,6 +152,7 @@ class SoalTulisController extends Controller
 				return ['status' => 'fail', 'message' => 'Pertanyaan tidak dapat ditemukan'];
 			}
 			$pertanyaan->pertanyaan_text = $request->pertanyaan_text;
+			$pertanyaan->poin = $request->poin_pertanyaan;
 			foreach ($request->pilihan_jawaban as $key => $value) {
 				$pilihan_jawaban = (object) $value;
 				if (isset($pilihan_jawaban->id_pilihan_jawaban)) {

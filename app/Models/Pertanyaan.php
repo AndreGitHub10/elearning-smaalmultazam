@@ -38,6 +38,7 @@ class Pertanyaan extends Model
 			$pertanyaan = new Pertanyaan;
 			$pertanyaan->soal_id = $request->id_soal;
 			$pertanyaan->nomor = $i + 1;
+			$pertanyaan->poin = $request->poin_pertanyaan;
 			$pertanyaan->pertanyaan_text = $request->pertanyaan_text;
 			if (!$pertanyaan->save()) {
 				return false;

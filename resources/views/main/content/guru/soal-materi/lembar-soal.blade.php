@@ -155,6 +155,10 @@
 						</div>
 					</div>
 					<div class="col-12 mt-3">
+						<label for="poin_pertanyaan" class="form-label">Poin Pertanyaan</label>
+						<input type="number" min="0" name="poin_pertanyaan" id="poin_pertanyaan" class="form-control" value="0" placeholder="Masukkan angka poin pertanyaan ...">
+					</div>
+					<div class="col-12 mt-3">
 						<button class="btn btn-primary btnSimpanPertanyaan">SIMPAN PERTANYAAN</button>
 					</div>
 				</div>
@@ -179,6 +183,16 @@
 			})
 		} else {
 			getPertanyaan(pertanyaans[0].id_pertanyaan)
+		}
+	})
+
+	$('#poin_pertanyaan').keyup(function(){
+		var poinForm = $(this)
+		var poinValue = parseInt(poinForm.val())
+		if(poinValue > 0){
+			poinForm.val(poinValue)
+		}else{
+			poinForm.val(0)
 		}
 	})
 
@@ -283,6 +297,7 @@
 					timer: 1200
 				})
 				$('#id_pertanyaan').val(data.data.pertanyaan.id_pertanyaan)
+				$('#poin_pertanyaan').val(data.data.pertanyaan.poin)
 				refreshMapPertanyaan(data.data.pertanyaans)
 				// $('#pertanyaan_text').val(data.data.pertanyaan.pertanyaan_text)
 				CKEDITOR.instances.pertanyaan_text.setData(data.data.pertanyaan.pertanyaan_text)
@@ -305,6 +320,7 @@
 					});
 					$('#jawaban_area').html(pilihan_jawaban)
 				} else {
+					$('#poin_pertanyaan').val(0)
 					$('#jawaban_area').html(`<div class="d-flex align-items-center jawaban">
 								<h4 class="m-auto">${alphabet[0]}</h4>
 								<textarea class="form-control ms-2" name="pilihan_jawaban[0][pilihan_text]" id="pilihan_text_0" rows="1"></textarea>

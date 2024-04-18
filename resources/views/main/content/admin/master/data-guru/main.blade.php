@@ -51,9 +51,10 @@
 <!--Sweetalert -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-	var routeDatatable = "{{route('elearning.dataGuru.main')}}";
-	var routeDataGuruAdd = "{{route('elearning.dataGuru.add')}}";
-	var routeDataGuruDelete = "{{route('elearning.dataGuru.add')}}";
+	var routeDatatable = "{{route('admin.dataGuru.main')}}";
+	var routeDataGuruAdd = "{{route('admin.dataGuru.add')}}";
+	var routeDataGuruImport = "{{route('admin.dataGuru.import')}}";
+	var routeDataGuruDelete = "{{route('admin.dataGuru.delete')}}";
 	$(document).ready( async () => {
 		await dataTable()
 	})
@@ -65,7 +66,7 @@
 		<'col-sm-2 templateTambah'>
 		<'col-sm-2 templateImport'>
 		<'col-sm-4'>
-		<'col-sm-2'f>
+		<'col-sm-4'f>
 		>
 		<'row mt-2'<'col-sm-12'tr>>
 		<'row mt-2'<'col-sm-5'i><'col-sm-7'p>>
@@ -140,21 +141,21 @@
 	}
 
 	function importDataGuru() {
-		console.log('test');
-		// $('.main-page').hide();
-		// var url = routeDataGuruAdd
-		// $.post(url, {id:id})
-		// .done(function(data){
-		// 	if(data.status == 'success'){
-		// 		$('.other-page').html(data.content).fadeIn();
-		// 	} else {
-		// 		$('.main-page').show();
-		// 	}
-		// })
-		// .fail(() => {
-		// 	$('.other-page').empty();
-		// 	$('.main-page').show();
-		// })
+		// console.log('test');
+		$('.main-page').hide();
+		var url = routeDataGuruImport
+		$.get(url)
+		.done(function(data){
+			if(data.status == 'success'){
+				$('.other-page').html(data.content).fadeIn();
+			} else {
+				$('.main-page').show();
+			}
+		})
+		.fail(() => {
+			$('.other-page').empty();
+			$('.main-page').show();
+		})
 	}
 	
 	function hapusDataGuru(id) {

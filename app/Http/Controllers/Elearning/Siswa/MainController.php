@@ -11,6 +11,8 @@ use App\Models\Pertanyaan;
 use App\Models\Siswa;
 use App\Models\Soal;
 use Illuminate\Support\Facades\Auth;
+use Help;
+use Illuminate\Support\Facades\Validator;
 
 class MainController extends Controller{
 	public function kerjakan(Request $request){
@@ -121,5 +123,46 @@ class MainController extends Controller{
 			],
 			'response' => $jawaban
 		]);
+	}
+
+	public function selesaikan(Request $request) {
+		$params = [
+			'id_soal' => 'required',
+		];
+		$message = [
+			'id_soal.required' => 'ID Soal Tidak Diketahui!',
+		];
+		$validator = Validator::make($request->all(), $params, $message);
+		if ($validator->fails()) {
+			foreach ($validator->errors()->toArray() as $key => $val) {
+				$msg = $val[0]; # Get validation messages, only one
+				break;
+			}
+			return ['status' => 'fail', 'message' => $msg];
+		}
+
+		$user_id = Auth::user()->id;
+		if (!$jawabanSiswa=JawabanSiswa::where('soal_id',$request->id_soal)->
+				whereHas('siswa',function ($q) use($user_id) {
+					$q->where('users_id',$user_id);
+				})->
+				first()) {
+			return ['status' => 'fail', 'message' => 'Anda belum mengerjakan soal!'];
+		}
+		if ($jawabanSiswa->waktu_mulai=='') {
+			return ['status' => 'fail', 'message' => 'Anda belum mengerjakan soal!'];
+		}
+		if ($jawabanSiswa->nilai!=null) {
+			return ['status' => 'fail', 'message' => 'Nilai telah keluar!'];
+		}
+		if (!$kunciJawaban=Pertanyaan::getPertanyaanKunciJawaban($request)) {
+			return ['status' => 'fail', 'message' => 'Pertanyaan tidak ditemukan!'];
+		}
+		$jawabanSiswa->nilai=Help::hitungNilai($jawabanSiswa->jawaban_siswa,$kunciJawaban);
+		$jawabanSiswa->waktu_selesai=date('Y-m-d H:i:s');
+		if (!$jawabanSiswa->save()) {
+			return ['status' => 'fail', 'message' => 'Gagal menyimpan nilai, coba lagi!'];
+		}
+		return ['status' => 'success', 'message' => 'Berhasil menyimpan pengerjaan!'];
 	}
 }

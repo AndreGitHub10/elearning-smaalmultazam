@@ -27,7 +27,7 @@
 								<th>No</th>
 								<th>Kelas</th>
 								<th>Nama Kelas</th>
-								<th>Tahun Ajaran</th>
+								{{-- <th>Tahun Ajaran</th> --}}
 								<th>Nama Wali Kelas</th>
 								<th>Aksi</th>
 							</tr>
@@ -108,7 +108,7 @@
 				}},
 				{data:'kelas', name:'kelas'},
 				{data:'nama_kelas', name:'nama_kelas'},
-				{data:'tahun_ajaran', name:'tahun_ajaran'},
+				// {data:'tahun_ajaran', name:'tahun_ajaran'},
 				{data:'guru', name:'guru'},
 				{data:'actions', name:'actions'}
 			],
@@ -134,7 +134,7 @@
 			</div>
 		`;
 
-		$("div.templateTahunAjaran").html(templateTahunAjaran)
+		// $("div.templateTahunAjaran").html(templateTahunAjaran)
 		$("div.templateTambah").html(templateTambah)
 	}
 

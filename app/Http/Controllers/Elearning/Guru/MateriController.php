@@ -17,6 +17,13 @@ use Illuminate\Support\Facades\Validator;
 
 class MateriController extends Controller
 {
+	protected $data;
+
+	public function __construct()
+	{
+		$this->data['title'] = 'Materi';
+	}
+
 	public function main(Request $request)
 	{
 		$user_id = Auth::user()->id;

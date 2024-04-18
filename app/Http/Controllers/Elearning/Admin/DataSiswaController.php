@@ -3,34 +3,44 @@
 namespace App\Http\Controllers\Elearning\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Imports\SiswaImport;
 use App\Models\Siswa;
 use App\Models\Users;
 use Illuminate\Http\Request;
-use DataTables, CLog, Help, DB;
+use DataTables, CLog, Help, DB, Excel;
 use Illuminate\Support\Facades\Validator;
 
 class DataSiswaController extends Controller
 {
+	protected $data;
+
+	public function __construct()
+	{
+		$this->data['title'] = 'Data Siswa';
+		$this->data['breadCrumb'] = ['Data Master'];
+	}
+
 	public function main(Request $request)
 	{
-		$data = Siswa::orderBy('id_siswa', 'DESC')
-			// ->has('kelas_siswa')
-			->with('kelas_siswa', function ($q) {
-				$q->has('kelas')->with('kelas');
-			})
-			->get();
+		$data = $this->data;
 		if ($request->ajax()) {
-			return DataTables::of($data)->addIndexColumn()->addColumn('nisn', function ($row) {
+			$siswa = Siswa::orderBy('id_siswa', 'DESC')
+				// ->has('kelas_siswa')
+				// ->with('kelas_siswa', function ($q) {
+				// 	$q->has('kelas')->with('kelas');
+				// })
+				->get();
+			return DataTables::of($siswa)->addIndexColumn()->addColumn('nisn', function ($row) {
 				return '-';
-			})->addColumn('kelas', function ($row) {
-				return $row->kelas_siswa ? $row->kelas_siswa->kelas->nama_kelas : '-';
+			// })->addColumn('kelas', function ($row) {
+			// 	return $row->kelas_siswa ? $row->kelas_siswa->kelas->nama_kelas : '-';
 			})->addColumn('actions', function ($row) {
 				$html = "<button onclick='tambahSiswa($row->id_siswa)' class='btn ms-1 btn-primary p-2'><i class='bx bx-edit-alt mx-1'></i></button>";
 				$html .= "<button onclick='hapusSiswa($row->id_siswa)' class='btn ms-1 btn-danger p-2'><i class='bx bx-trash mx-1'></i></button>";
 				return $html;
 			})->rawColumns(['actions', 'foto'])->toJson();
 		}
-		return view('main.content.admin.master.data-siswa.main');
+		return view('main.content.admin.master.data-siswa.main',$data);
 	}
 
 	public function add(Request $request)
@@ -98,7 +108,7 @@ class DataSiswaController extends Controller
 			$siswa->no_tlp = $request->no_telp;
 			$siswa->status = $request->status ? 'Siswa Aktif' : 'Bukan Siswa Aktif';
 			$siswa->alamat = $request->alamat;
-			$siswa->foto = ' ';
+			$siswa->foto = '';
 
 			if (isset($siswa->users_id)) {
 				if (!$user = Users::where('id', $siswa->users_id)->first()) {
@@ -134,6 +144,91 @@ class DataSiswaController extends Controller
 			}
 			DB::commit();
 			return ['status' => 'success', 'message' => 'Berhasil menyimpan data'];
+		} catch (\Throwable $e) {
+			DB::rollback();
+			$request->merge([
+				'file' => $e->getFile(),
+				'message' => $e->getMessage(),
+				'line' => $e->getLine(),
+			]);
+			CLog::catchError($request);
+			return Help::resMsg(null, 500);
+		}
+	}
+
+	public function import(Request $request)
+	{
+		$content = view('main.content.admin.master.data-siswa.import')->render();
+		return ['status' => 'success', 'content' => $content];
+	}
+
+	public function importSave(Request $request)
+	{
+		$rules = [
+			'file' => 'required',
+		];
+		$message = [
+			'file.required' => 'File Wajib Diisi',
+		];
+		$validate = Validator::make($request->all(), $rules, $message);
+		if ($validate->fails()) {
+			return response()->json(['message' => $validate->errors()->all()[0]], 201);
+		}
+		$urutan = explode(',', $request->urutan);
+		$array = Excel::toArray(new SiswaImport, $request->file('file'));
+		$total = 0;
+		foreach ($array[0] as $key => $value) {
+			DB::beginTransaction();
+			$newUser = $newGuru = (object) [];
+			$newUser->email = $value[0];
+			$newUser->no_induk = $value[0];
+			foreach ($urutan as $key2 => $value2) {
+				$newGuru->{$value2} = isset($value[$key2 + 1]) ? $value[$key2 + 1] : '';
+			}
+			if (!$saveUser = Users::storeSiswa($newUser)) {
+				DB::rollback();
+			}
+			$newGuru->users_id = $saveUser->id;
+			if (!Siswa::store($newGuru)) {
+				DB::rollback();
+			}
+			DB::commit();
+			$total++;
+		}
+		return ['status' => 'success', 'message' => "Berhasil menyimpan $total data"];
+	}
+
+	public function delete(Request $request)
+	{
+		$rules = [
+			// 'password' => 'required',
+			'id' => 'required',
+		];
+		$message = [
+			// 'password.required' => 'Password Harus Diisi',
+			'id.required' => 'ID Tidak Ditemukan',
+		];
+		$validate = Validator::make($request->all(), $rules, $message);
+		if ($validate->fails()) {
+			return response()->json(['message' => $validate->errors()->all()[0]], 201);
+		}
+		// if (!Hash::check($request->password, Auth::user()->password)) {
+		// 	return Help::resMsg('Password admininstrator salah', 201);
+		// }
+		DB::beginTransaction();
+		try {
+			if(!$siswa = Siswa::where('id_siswa', $request->id)->first()) {
+				return Help::resMsg('Data siswa tidak ditemukan', 201);
+			}
+			$data = Siswa::where('id_siswa', $request->id)->delete();
+			$user = Users::where('id', $siswa->users_id)->delete();
+			if (!$data||!$user) {
+				DB::rollback();
+				return Help::resMsg('Gagal Menghapus', 201);
+			} else {
+				DB::commit();
+				return Help::resMsg('Berhasil Menghapus', 200);
+			}
 		} catch (\Throwable $e) {
 			DB::rollback();
 			$request->merge([

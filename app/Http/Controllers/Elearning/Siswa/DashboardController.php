@@ -3,22 +3,27 @@
 namespace App\Http\Controllers\Elearning\Siswa;
 
 use App\Http\Controllers\Controller;
+use App\Models\Siswa;
 use Illuminate\Http\Request;
-
-# Library / package
-use DataTables;
-# Models
-use App\Models\Soal;
+use Auth;
 
 class DashboardController extends Controller{
-	public function main(Request $request){
-		if($request->ajax()){
-			$data = Soal::has('mata_pelajaran')->with('mata_pelajaran')->withCount('pertanyaan')->get();
-			return DataTables::of($data)->
-				addIndexColumn()->
-				addColumn('actions', fn($row)=>"<button class='btn btn-primary btnKerjakan' onclick='kerjakanSoal($row->id_soal,`$row->pendahuluan`)'><i class='bx bx-key'></i>Kerjakan</button>")->
-				rawColumns(['actions'])->toJson();
+	public function main(){
+		$bulan = date('m');
+		$tahun = date('Y');
+		if ($bulan>=7) {
+			$like = $tahun.'%';
+		} else {
+			$like = '%'.$tahun;
 		}
-		return view('main.content.siswa.dashboard.main');
+		$data['bio'] = Siswa::join('users','siswas.users_id','users.id')
+			->where('users.no_induk',Auth::user()->no_induk)
+			->with('kelas_siswa',function ($q) use ($like) {
+				$q->whereHas('tahun_ajaran',function ($qq) use ($like) {
+					$qq->where('nama_tahun_ajaran','like',$like);
+				})->with('kelas');
+			})
+			->first();
+		return view('main.content.siswa.dashboard.main',$data);
 	}
 }

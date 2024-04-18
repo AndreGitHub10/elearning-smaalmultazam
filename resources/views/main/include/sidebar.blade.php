@@ -1,5 +1,7 @@
 @php
-$title = 'Logo';
+if (!isset($title)) {
+	$title = '...';
+}
 @endphp
 
 <div class="sidebar-wrapper sds" data-simplebar="true">
@@ -23,9 +25,17 @@ $title = 'Logo';
 					<div class="menu-title">Dashboard</div>
 				</a>
 			</li>
+			<li class="{{ ($title == 'Profil Siswa') ? 'mm-active' : ''}}">
+				<a href="{{route('siswa.profil.main')}}">
+					<div class="parent-icon">
+						<i style="color: #fff" class='bx bx-user-pin'></i>
+					</div>
+					<div class="menu-title">Profil Siswa</div>
+				</a>
+			</li>
 			<li class="menu-label">Content</li>
 			<li class="{{ ($title == 'Materi Elearning') ? 'mm-active' : ''}}">
-				<a href="{{route('elearning.materiElearning.main')}}">
+				<a href="{{route('siswa.materi.main')}}">
 					<div class="parent-icon">
 						<i style="color: #fff" class='bx bx-file'></i>
 					</div>
@@ -33,7 +43,7 @@ $title = 'Logo';
 				</a>
 			</li>
 			<li class="{{ ($title == 'Uji Kompetensi') ? 'mm-active' : ''}}">
-				<a href="{{route('elearning.ujiKompetensi.main')}}">
+				<a href="{{route('siswa.ujiKompetensi.main')}}">
 					<div class="parent-icon">
 						<i style="color: #fff" class='bx bx-file'></i>
 					</div>
@@ -41,7 +51,7 @@ $title = 'Logo';
 				</a>
 			</li>
 			<li class="{{ ($title == 'Data Nilai') ? 'mm-active' : ''}}">
-				<a href="{{route('elearning.dataNilai.main')}}">
+				<a href="{{route('siswa.dataNilai.main')}}">
 					<div class="parent-icon">
 						<i style="color: #fff" class='bx bx-file'></i>
 					</div>
@@ -50,7 +60,7 @@ $title = 'Logo';
 			</li>
 		@endif
 
-		@if (Auth::User()->level_user=='3') <!-- Guru -->
+		@if (in_array(Auth::User()->level_user,[3,5])) <!-- Guru -->
 			<li class="{{ ($title == 'Dashboard') ? 'mm-active' : ''}}">
 				<a href="{{route('dashboard')}}">
 					<div class="parent-icon">
@@ -67,7 +77,7 @@ $title = 'Logo';
 					<div class="menu-title">Profil Guru</div>
 				</a>
 			</li>
-			<li class="{{ (in_array($title, ['Materi','Soal Tulis','Soal Listening','Pengerjaan Siswa','Nilai Siswa'])) ? 'mm-active' : ''}}">
+			<li class="{{ (in_array($title, ['Materi','Soal','Soal Listening','Pengerjaan Siswa','Nilai Siswa'])) ? 'mm-active' : ''}}">
 				<a href="javascript:;" class="has-arrow">
 					<div class="parent-icon">
 						<i style="color: #fff" class='bx bx-folder'></i>
@@ -78,23 +88,26 @@ $title = 'Logo';
 					<li class="{{ ($title == 'Materi') ? 'mm-active' : ''}}">
 						<a style="color: #fff" href="{{route('guru.materi.main')}}"><i class="bx bx-radio-circle"></i>Materi</a>
 					</li>
-					<li class="{{ ($title == 'Soal Tulis') ? 'mm-active' : ''}}">
-						<a style="color: #fff" href="{{route('guru.soalTulis.main')}}"><i class="bx bx-radio-circle"></i>Soal Tulis</a>
+					<li class="{{ ($title == 'Soal') ? 'mm-active' : ''}}">
+						<a style="color: #fff" href="{{route('guru.soalTulis.main')}}"><i class="bx bx-radio-circle"></i>Soal</a>
 					</li>
-					<li class="{{ ($title == 'Soal Listening') ? 'mm-active' : ''}}">
+					{{-- <li class="{{ ($title == 'Soal Listening') ? 'mm-active' : ''}}">
 						<a style="color: #fff" href="{{route('guru.soalTulis.main')}}"><i class="bx bx-radio-circle"></i>Soal Listening</a>
-					</li>
-					<li class="{{ ($title == 'Pengerjaan Siswa') ? 'mm-active' : ''}}">
+					</li> --}}
+					{{-- <li class="{{ ($title == 'Pengerjaan Siswa') ? 'mm-active' : ''}}">
 						<a style="color: #fff" href="{{route('main.menuUtama.prestasiSiswa.main')}}"><i class="bx bx-radio-circle"></i>Pengerjaan Siswa</a>
-					</li>
+					</li> --}}
 					<li class="{{ ($title == 'Nilai Siswa') ? 'mm-active' : ''}}">
-						<a style="color: #fff" href="{{route('main.menuUtama.pengumuman.main')}}"><i class="bx bx-radio-circle"></i>Nilai Siswa</a>
+						<a style="color: #fff" href="{{route('guru.nilaiSiswa.main')}}"><i class="bx bx-radio-circle"></i>Nilai Siswa</a>
+					</li>
+					<li class="{{ ($title == 'E-RAPOR') ? 'mm-active' : ''}}">
+						<a style="color: #fff" href="{{route('guru.rapor.main')}}"><i class="bx bx-radio-circle"></i><i>e-</i> Rapor</a>
 					</li>
 				</ul>
 			</li>
 			<li class="menu-label">Content</li>
 			<li class="{{ ($title == 'Dokumen') ? 'mm-active' : ''}}">
-				<a href="{{route('main.sliderGambar.main')}}">
+				<a href="{{route('guru.dokumen.main')}}">
 					<div class="parent-icon">
 						<i style="color: #fff" class='bx bx-file'></i>
 					</div>
@@ -107,6 +120,14 @@ $title = 'Logo';
 						<i style="color: #fff" class='bx bx-file'></i>
 					</div>
 					<div class="menu-title">Jurnal Guru</div>
+				</a>
+			</li>
+			<li class="{{ ($title == 'Praktek Baik Guru') ? 'mm-active' : ''}}">
+				<a href="{{route('guru.praktekBaikGuru.main')}}">
+					<div class="parent-icon">
+						<i style="color: #fff" class='bx bx-file'></i>
+					</div>
+					<div class="menu-title">Praktek Baik Guru</div>
 				</a>
 			</li>
 		@endif
@@ -131,6 +152,9 @@ $title = 'Logo';
 					<li class="{{ ($title == 'Tahun Ajaran') ? 'mm-active' : ''}}">
 						<a style="color: #fff" href="{{route('admin.tahunAjaran.main')}}"><i class="bx bx-radio-circle"></i>Tahun Ajaran</a>
 					</li>
+					<li class="{{ ($title == 'Mata Pelajaran') ? 'mm-active' : ''}}">
+						<a style="color: #fff" href="{{route('admin.mataPelajaran.main')}}"><i class="bx bx-radio-circle"></i>Mata Pelajaran</a>
+					</li>
 					<li class="{{ ($title == 'Data Guru') ? 'mm-active' : ''}}">
 						<a style="color: #fff" href="{{route('admin.dataGuru.main')}}"><i class="bx bx-radio-circle"></i>Data Guru</a>
 					</li>
@@ -140,44 +164,65 @@ $title = 'Logo';
 					<li class="{{ ($title == 'Data Siswa') ? 'mm-active' : ''}}">
 						<a style="color: #fff" href="{{route('admin.dataSiswa.main')}}"><i class="bx bx-radio-circle"></i>Data Siswa</a>
 					</li>
-					<li class="{{ ($title == 'Mata Pelajaran') ? 'mm-active' : ''}}">
-						<a style="color: #fff" href="{{route('admin.mataPelajaran.main')}}"><i class="bx bx-radio-circle"></i>Mata Pelajaran</a>
+					<li class="{{ ($title == 'Data Kelas Siswa') ? 'mm-active' : ''}}">
+						<a style="color: #fff" href="{{route('admin.kelasSiswa.main')}}"><i class="bx bx-radio-circle"></i>Data Kelas Siswa</a>
+					</li>
+					<li class="{{ ($title == 'Data Mapel Pengampu') ? 'mm-active' : ''}}">
+						<a style="color: #fff" href="{{route('admin.mapelPengampu.main')}}"><i class="bx bx-radio-circle"></i>Data Mapel Pengampu</a>
 					</li>
 				</ul>
 			</li>
 			<li class="menu-label">Content</li>
-			<li class="{{ ($title == 'Materi Elearning') ? 'mm-active' : ''}}">
-				<a href="{{route('materiElearning.main')}}">
+			<li class="{{ ($title == 'Materi') ? 'mm-active' : ''}}">
+				<a href="{{route('admin.materi.main')}}">
 					<div class="parent-icon">
 						<i style="color: #fff" class='bx bx-file'></i>
 					</div>
 					<div class="menu-title">Materi Elearning</div>
 				</a>
 			</li>
-			<li class="{{ ($title == 'Soal Elearning') ? 'mm-active' : ''}}">
-				<a href="{{route('soalElearning.main')}}">
+			<li class="{{ ($title == 'Soal') ? 'mm-active' : ''}}">
+				<a href="{{route('admin.soal.main')}}">
 					<div class="parent-icon">
 						<i style="color: #fff" class='bx bx-file'></i>
 					</div>
 					<div class="menu-title">Soal Elearning</div>
 				</a>
 			</li>
-			<li class="{{ ($title == 'Pengerjaan Siswa') ? 'mm-active' : ''}}">
-				<a href="{{route('pengerjaanSiswa.main')}}">
+			<li class="{{ ($title == 'Nilai Siswa') ? 'mm-active' : ''}}">
+				<a href="{{route('admin.nilaiSiswa.main')}}">
 					<div class="parent-icon">
 						<i style="color: #fff" class='bx bx-file'></i>
 					</div>
-					<div class="menu-title">Pengerjaan Siswa</div>
+					<div class="menu-title">Nilai Siswa</div>
 				</a>
 			</li>
-			<li class="{{ ($title == 'Data Nilai') ? 'mm-active' : ''}}">
-				<a href="{{route('dataNilai.main')}}">
+			<li class="{{ ($title == 'E-RAPOR') ? 'mm-active' : ''}}">
+				<a href="{{route('admin.rapor.main')}}">
+					<div class="parent-icon">
+						<i style="color: #fff" class='bx bx-book'></i>
+					</div>
+					<div class="menu-title"><i>e-</i> Rapor</div>
+				</a>
+			</li>
+			<li class="{{ ($title == 'Dokumen') ? 'mm-active' : ''}}">
+				<a href="{{route('admin.dokumen.main')}}">
 					<div class="parent-icon">
 						<i style="color: #fff" class='bx bx-file'></i>
 					</div>
-					<div class="menu-title">Data Nilai</div>
+					<div class="menu-title">Dokumen</div>
 				</a>
 			</li>
+		@endif
+		@if (Auth::User()->level_user=='5')
+		<li class="{{ ($title == 'Jurnal Guru') ? 'mm-active' : ''}}">
+			<a href="{{route('kepsek.jurnal.main')}}">
+				<div class="parent-icon">
+					<i style="color: #fff" class='bx bx-file'></i>
+				</div>
+				<div class="menu-title">Jurnal Guru</div>
+			</a>
+		</li>
 		@endif
 		@endauth
 	</ul>

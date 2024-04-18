@@ -23,38 +23,6 @@
 								<th>Status</th>
 							</tr>
 						</thead>
-						<tbody>
-							<tr style="background-color:#b8ffb5">
-								<td>1</td>
-								<td>Nama Mata Pelajaran</td>
-								<td>Judul Soal</td>
-								<td>100</td>
-								<td>22 Juli 2021</td>
-								<td>65</td>
-								<td>90</td>
-								<td>Lulus</td>
-							</tr>
-							<tr style="background-color: #ffb5b5">
-								<td>2</td>
-								<td>Nama Mata Pelajaran</td>
-								<td>Judul Soal</td>
-								<td>100</td>
-								<td>22 Juli 2021</td>
-								<td>65</td>
-								<td>60</td>
-								<td>Lulus</td>
-							</tr>
-							<tr style="background-color:#b8ffb5">
-								<td>3</td>
-								<td>Nama Mata Pelajaran</td>
-								<td>Judul Soal</td>
-								<td>100</td>
-								<td>22 Juli 2021</td>
-								<td>65</td>
-								<td>90</td>
-								<td>Lulus</td>
-							</tr>
-						</tbody>
 					</table>
 				</div>
 			</div>
@@ -70,23 +38,101 @@
 <!--Sweetalert -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-	var routeKerjakan = "{{route('elearning.main.kerjakan')}}"
-	
-	$(document).ready(()=>{
-		$('#dataTable').DataTable({
-			scrollX:true
+	var routeDatatable = "{{route('siswa.dataNilai.main')}}"
+	$(document).ready(async ()=>{
+		await dataTable()
+	})
+
+	async function dataTable() {
+		const loading = '<div class=spinner-grow text-primary" role="status"> <span class="visually-hidden">Loading...</span></div>'
+		let sDom = `
+		<'row mb-2'
+		<'col-sm-2'l>
+		<'col-sm-3 templateTahunAjaran'>
+		<'col-sm-2 templateSemester'>
+		<'col-sm-2 templateMapel'>
+		<'col-sm-3'>
+		>
+		<'row mt-2'<'col-sm-12'tr>>
+		<'row mt-2'<'col-sm-5'i><'col-sm-7'p>>
+		`
+		await $('#dataTable').DataTable({
+			sDom: sDom,
+			stateSave: false,
+			scrollX:true,
+			serverSide: true,
+			processing: true,
+			destroy: true,
+			language: {
+				processing: loading+' '+loading+' '+loading,
+				// lengthMenu: `
+				// 	Display<br>
+				// 	<select name="dataTable_length" aria-controls="dataTable" class="form-select form-select-sm">
+					// 		<option value="10">10</option>
+					// 		<option value="20">20</option>
+					// 		<option value="30">30</option>
+					// 		<option value="40">40</option>
+					// 		<option value="50">50</option>
+					// 	</select>
+					// `,
+					search: 'Cari',
+					searchPlaceholder: 'Masukkan kata kunci',
+				},
+			ajax: {
+				url: routeDatatable,
+				// data: {status: status},
+			},
+			columns: [
+				{data:'DT_RowIndex', name:'DT_RowIndex', render: (data, type, row)=>{
+					return `<p class="m-0 p-1">${data}</p>`
+				}},
+				{data:'nama_mapel', name:'nama_mapel'},
+				{data:'judul', name:'judul'},
+				{data:'jumlah_soal', name:'jumlah_soal'},
+				{data:'waktu_mulai', name:'waktu_mulai'},
+				{data:'kkm', name:'kkm'},
+				{data:'nilai', name:'nilai'},
+				{data:'status_lulus', name:'status_lulus'}
+			],
 		})
-	})
-	
-	$('.btnKerjakan').click((e)=>{
-		e.preventDefault()
-	})
-	
-	$('.btnMulai').click((e)=>{
-		e.preventDefault()
-		window.location = routeKerjakan
-		// console.log(routeKerjakan);
-	})
+			
+		const templateKelas = `
+			<div class="d-inline">
+				<label class="my-1 pe-1">Kelas</label>
+				<select name="status" aria-controls="status" class="form-select form-select-sm" id="status" onchange="filter()">
+					<option value="">Semua</option>
+					<option value="1">Aktif</option>
+					<option value="0">Tidak Aktif</option>
+				</select>
+			</div>
+		`;
+			
+		const templateTahunAjaran = `
+			<div class="d-inline">
+				<label class="my-1 pe-1">Tahun Ajaran</label>
+				<select name="status" aria-controls="status" class="form-select form-select-sm" id="status" onchange="filter()">
+					<option value="">Semua</option>
+					<option value="1">Aktif</option>
+					<option value="0">Tidak Aktif</option>
+				</select>
+			</div>
+		`;
+			
+		const templateSemester = `
+			<div class="d-inline">
+				<label class="my-1 pe-1">Semester</label>
+				<select name="status" aria-controls="status" class="form-select form-select-sm" id="status" onchange="filter()">
+					<option value="">Semua</option>
+					<option value="1">Aktif</option>
+					<option value="0">Tidak Aktif</option>
+				</select>
+			</div>
+		`;
+		
+		// $("div.templateMapel").html(templateKelas)
+		// $("div.templateTahunAjaran").html(templateTahunAjaran)
+		// $("div.templateSemester").html(templateSemester)
+	}
 
 </script>
 @endpush

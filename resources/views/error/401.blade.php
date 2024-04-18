@@ -31,7 +31,7 @@
 							<p>Tidak dapat mengakses halaman yang diminta.
 								<br>Server tidak dapat memverifikasi bahwa Anda berwenang untuk mengakses dokumen yang diminta.</p>
 							<div class="mt-5">
-								<a href="{{route('home')}}" class="btn btn-primary btn-lg px-md-5 radius-30">Go Home</a>
+								<a href="{{route('dashboard')}}" class="btn btn-primary btn-lg px-md-5 radius-30">Go Home</a>
 								<a href="{{route('auth.logout')}}" class="btn btn-outline-dark btn-lg ms-3 px-md-5 radius-30">Logout</a>
 							</div>
 						</div>

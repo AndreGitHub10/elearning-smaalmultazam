@@ -11,9 +11,9 @@ class TestController extends Controller
 {
     public function import()
     {
-        // Excel::import(new FileAImport, storage_path('FileA.xlsx'));
+        Excel::import(new FileAImport, storage_path('FileA.xlsx'));
         Excel::import(new FileBImport, storage_path('FileB.xlsx'));
 
-        return 'B';
+        return 'AB';
     }
 }

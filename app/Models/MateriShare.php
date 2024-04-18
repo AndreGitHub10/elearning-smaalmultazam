@@ -17,4 +17,12 @@ class MateriShare extends Model
 	{
 		return $this->belongsTo(MataPelajaran::class, 'mapel_id', 'id_mapel');
 	}
+
+	public function kelas() {
+		return $this->belongsTo(Kelas::class, 'kelas_id', 'id_kelas');
+	}
+
+	public function guru() {
+		return $this->belongsTo(Guru::class, 'user_id','users_id');
+	}
 }

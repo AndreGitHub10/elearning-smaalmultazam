@@ -16,7 +16,8 @@ class Guru
 	 */
 	public function handle(Request $request, Closure $next)
 	{
-		if (Auth::user() && Auth::user()->level_user === 3) {
+		// if (Auth::user() && Auth::user()->level_user === 3) {
+		if (Auth::user() && in_array(Auth::user()->level_user,[3,5])) {
 			return $next($request);
 		}
 		if ($request->ajax()) {

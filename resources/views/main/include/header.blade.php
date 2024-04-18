@@ -6,7 +6,7 @@
 			<div class="top-menu ms-auto">
 				<ul class="navbar-nav align-items-center">
 					<li class="nav-item">
-						<a href="{{URL::to('/')}}" target="_blank" class="btn text-white btn-warning"><i class="bx bx-globe"></i>Buka Website</a>
+						<a href="https://www.smaalmultazam-mjk.sch.id/" target="_blank" class="btn text-white btn-warning"><i class="bx bx-globe"></i>Buka Website</a>
 					</li>
 					<li class="nav-item dropdown dropdown-large">
 						<div class="dropdown-menu dropdown-menu-end">
@@ -33,7 +33,7 @@
 			</div>
 			<div class="user-box dropdown">
 				<a class="d-flex align-items-center nav-link dropdown-toggle dropdown-toggle-nocaret" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-					<img src="{{ asset('admin/assets/images/avatars/no-avatar.png')}}" class="user-img" alt="user avatar">
+					<img src="{{ Auth::user()->foto ? asset(Auth::user()->foto) : asset('admin/assets/images/avatars/no-avatar.png')}}" class="user-img" alt="user avatar">
 					<div class="user-info ps-3">
 						<p class="user-name mb-0">{{Auth::user()->first_name}}</p>
 						<p class="designattion mb-0">

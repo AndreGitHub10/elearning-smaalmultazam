@@ -4,6 +4,34 @@
             <td class="nomor align-baseline"><span>1.</span></td>
             <td>
                 {!! $data->pertanyaan_text !!}
+                @foreach ($data->pertanyaan_file as $item)
+                    @if ($item->type_file=='gambar')
+                    <div class="row">
+                        <img src="{{url('uploads/elearning/pertanyaan')}}/{{$item->file}}" alt="gambar_{{$item->id_pertanyaan_file}}">
+                    </div>
+                    @endif
+                @endforeach
+                @foreach ($data->pertanyaan_file as $item)
+                    @if ($item->type_file=='audio')
+                    <div class="row">
+                        <audio id="audioOutput" class="mx-auto mt-auto" controls src="{{url('uploads/elearning/pertanyaan')}}/{{$item->file}}"></audio>
+                    </div>
+                    @endif
+                @endforeach
+                @foreach ($data->pertanyaan_file as $item)
+                    @if ($item->type_file=='video')
+                    <div class="row">
+                        {!! $item->file !!}
+                    </div>
+                    @endif
+                @endforeach
+                @foreach ($data->pertanyaan_file as $item)
+                    @if ($item->type_file=='link')
+                    <div class="row">
+                        <a class="btn btn-primary" href="{{$item->file}}" target="_blank">Buka Link</a>
+                    </div>
+                    @endif
+                @endforeach
                 <form class="dataForm">
                     <input type="hidden" name="ids" value="{{ $ids }}">
                     <input type="hidden" name="nU" value="{{ $nU }}">

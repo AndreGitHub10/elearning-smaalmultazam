@@ -24,20 +24,9 @@
 								<th>Aksi</th>
 							</tr>
 						</thead>
-						<tbody>
+						{{-- <tbody>
 							<tr>
-								<td>1</td>
-								<td>Nama Mata Pelajaran</td>
-								<td>Judul Soal</td>
-								<td>Tanggal Mulai</td>
-								<td>Tanggal Selesai</td>
-								<td>Jumlah Soal</td>
-								<td>Nilai KKM</td>
-								<td>Jenis Soal</td>
-								<td><button class="btn btn-success btnKerjakan"><i class="bx bx-loader-alt"></i>Revisi</button></td>
-							</tr>
-							<tr>
-								<td>2</td>
+								<td>No</td>
 								<td>Nama Mata Pelajaran</td>
 								<td>Judul Soal</td>
 								<td>Tanggal Mulai</td>
@@ -47,18 +36,7 @@
 								<td>Jenis Soal</td>
 								<td><button class="btn btn-primary btnKerjakan"><i class="bx bx-key"></i>Kerjakan</button></td>
 							</tr>
-							<tr>
-								<td>3</td>
-								<td>Nama Mata Pelajaran</td>
-								<td>Judul Soal</td>
-								<td>Tanggal Mulai</td>
-								<td>Tanggal Selesai</td>
-								<td>Jumlah Soal</td>
-								<td>Nilai KKM</td>
-								<td>Jenis Soal</td>
-								<td><button class="btn btn-primary btnKerjakan" disabled><i class="bx bx-key"></i>Kerjakan</button></td>
-							</tr>
-						</tbody>
+						</tbody> --}}
 					</table>
 				</div>
 			</div>
@@ -92,27 +70,74 @@
 <!--Sweetalert -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-	var routeKerjakan = "{{route('elearning.main.kerjakan')}}"
-	
 	var myModal = new bootstrap.Modal(document.getElementById('pendahuluanModal'), {
+		backdrop: 'static',
 		keyboard: false
 	})
+	var routeKerjakan = "{{route('siswa.kerjakan.main')}}"
 	$(document).ready(()=>{
 		$('#dataTable').DataTable({
-			scrollX:true
+			ajax: "{{route('siswa.ujiKomtensi.main')}}",
+			destroy: true,
+			scrollX: true,
+			processing: true,
+			serverSide: true,
+			columns: [
+				{
+					data: 'DT_RowIndex',
+					name: 'DT_RowIndex',
+				},
+				{
+					data: 'mata_pelajaran.nama_mapel',
+					name: 'mata_pelajaran.nama_mapel',
+				},
+				{
+					data: 'judul_soal',
+					name: 'judul_soal',
+				},
+				{
+					data: 'mulai_pengerjaan',
+					name: 'mulai_pengerjaan',
+				},
+				{
+					data: 'selesai_pengerjaan',
+					name: 'selesai_pengerjaan',
+				},
+				{
+					data: 'pertanyaan_count',
+					name: 'pertanyaan_count',
+				},
+				{
+					data: 'kkm',
+					name: 'kkm',
+				},
+				{
+					data: 'DT_RowIndex',
+					name: 'DT_RowIndex',
+				},
+				{
+					data: 'actions',
+					name: 'actions',
+				}
+			]
 		})
 	})
-	
-	$('.btnKerjakan').click((e)=>{
-		e.preventDefault()
-		myModal.show()
-	})
-	
-	$('.btnMulai').click((e)=>{
-		e.preventDefault()
-		window.location = routeKerjakan
-		// console.log(routeKerjakan);
-	})
 
+	async function kerjakanSoal(id,pendahuluan){
+		await myModal.show()
+		$('#btn-kerjakan').data('id',id) // Set id soal untuk di passing ke controller
+        $('.modal-body').html(pendahuluan)
+	}
+	async function mulaiKerjakan(){
+		const id = await $('#btn-kerjakan').data('id')
+		$.post("{{route('siswa.kerjakan.store')}}",{ids:id}).done((data, status, xhr)=>{
+			window.location = routeKerjakan+'?ids='+id+'&idjs='+data.response.id_jawaban_siswa
+		}).fail((e)=>{
+			console.log(e)
+		})
+	}
+	$('.btn-close').click( _ => {
+		$('#btn-kerjakan').data('id','') // Reset data id ketika modal di close
+	})
 </script>
 @endpush

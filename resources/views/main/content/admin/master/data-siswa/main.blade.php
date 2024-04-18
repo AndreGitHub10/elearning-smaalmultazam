@@ -29,7 +29,7 @@
 								<th>Nama Siswa</th>
 								<th>Jenis Kelamin</th>
 								<th>Alamat</th>
-								<th>Kelas</th>
+								{{-- <th>Kelas</th> --}}
 								<th>Status</th>
 								<th>Aksi</th>
 							</tr>
@@ -51,9 +51,10 @@
 <!--Sweetalert -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-	var routeDatatable = "{{route('elearning.dataSiswa.main')}}";
-	var routeDataSiswaAdd = "{{route('elearning.dataSiswa.add')}}";
-	var routeDataSiswaDelete = "{{route('elearning.dataSiswa.add')}}";
+	var routeDatatable = "{{route('admin.dataSiswa.main')}}";
+	var routeDataSiswaAdd = "{{route('admin.dataSiswa.add')}}";
+	var routeDataSiswaDelete = "{{route('admin.dataSiswa.delete')}}";
+	var routeDataSiswaImport = "{{route('admin.dataSiswa.import')}}";
 	$(document).ready( async () => {
 		await dataTable()
 	})
@@ -63,8 +64,9 @@
 		let sDom = `
 		<'row mb-2'
 		<'col-sm-2 templateTambah'>
-		<'col-sm-6 templateTahunAjaran'>
-		<'col-sm-2'f>
+		<'col-sm-2 templateImport'>
+		<'col-sm-4 templateTahunAjaran'>
+		<'col-sm-4'f>
 		>
 		<'row mt-2'<'col-sm-12'tr>>
 		<'row mt-2'<'col-sm-5'i><'col-sm-7'p>>
@@ -103,14 +105,18 @@
 				{data:'nama', name:'nama'},
 				{data:'gender', name:'gender'},
 				{data:'alamat', name:'alamat'},
-				{data:'kelas', name:'kelas'},
+				// {data:'kelas', name:'kelas'},
 				{data:'status', name:'status'},
 				{data:'actions', name:'actions'}
 			],
 		});
 			
 		const templateTambah = `
-			<button onclick="tambahSiswa()" class='btn btn-primary p-2 w-100'><i class='bx bx-plus' ></i>Tambah</button>
+			<button onclick="tambahSiswa()" class='btn btn-dark-brown text-white p-2 w-100'><i class='bx bx-plus' ></i>Tambah</button>
+		`;
+		
+		const templateImport = `
+			<button onclick="importDataGuru()" class='btn btn-orange-brown text-white p-2 w-100'><i class='bx bx-upload'></i>Import Data</button>
 		`;
 
 		const templateTahunAjaran = `
@@ -124,8 +130,27 @@
 			</div>
 		`;
 
-		$("div.templateTahunAjaran").html(templateTahunAjaran)
+		// $("div.templateTahunAjaran").html(templateTahunAjaran)
 		$("div.templateTambah").html(templateTambah)
+		$("div.templateImport").html(templateImport)
+	}
+
+	function importDataGuru() {
+		// console.log('test');
+		$('.main-page').hide();
+		var url = routeDataSiswaImport
+		$.get(url)
+		.done(function(data){
+			if(data.status == 'success'){
+				$('.other-page').html(data.content).fadeIn();
+			} else {
+				$('.main-page').show();
+			}
+		})
+		.fail(() => {
+			$('.other-page').empty();
+			$('.main-page').show();
+		})
 	}
 
 	function tambahSiswa(id='') {

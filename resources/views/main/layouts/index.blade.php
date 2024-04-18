@@ -22,6 +22,7 @@
 		@include('main.include.header')<!--importHeader-->
 
 		<div class="page-wrapper p-3">
+			@include('main.include.breadcrumb')<!--importBreadcrumb-->
 			@yield('content')<!--includeContent-->
 		</div>
 

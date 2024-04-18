@@ -53,6 +53,7 @@
 	var routeDatatable = "{{route('guru.soalTulis.main')}}"
 	var routeKerjakan = "{{route('guru.main.kerjakan')}}"
 	var routeMateriAdd = "{{route('guru.soalTulis.add')}}"
+	var routeShowNilai = "{{route('guru.soalTulis.showNilai')}}"
 	
 	$(document).ready(async()=>{
         await dataTable()
@@ -178,6 +179,44 @@
 		.fail(() => {
 			$('.other-page').empty();
 			$('.main-page').show();
+		})
+	}
+
+	function hiddenNilai(id='') {
+		var url = routeShowNilai
+		$.post(url, {id:id})
+		.done(function(data){
+			if(data.code == 200){
+			Swal.fire({
+				icon: 'success',
+				title: 'Berhasil',
+				text: data.message,
+				showConfirmButton: false,
+				timer: 1200
+			})
+			setTimeout(async ()=>{
+				await dataTable()
+				// $('#dataTabel').DataTable().ajax.reload()
+				// location.reload()
+				}, 1100);
+			} else {
+				Swal.fire({
+					icon: 'warning',
+					title: 'Whoops',
+					text: data.message,
+					showConfirmButton: false,
+					timer: 1300,
+				})
+			}
+		})
+		.fail(() => {
+			Swal.fire({
+				icon: 'error',
+				title: 'Whoops',
+				text: "Terjadi Kesalahan Sistem",
+				showConfirmButton: false,
+				timer: 1300,
+			})
 		})
 	}
 

@@ -11,11 +11,11 @@
 			</div>
 			<div class="card-body">
 				<form id="formMateri">
-					<input type="hidden" name="id" @isset($jurnal) value="{{$jurnal->id_jurnal}}" @endisset>
+					<input type="hidden" name="id" @isset($jurnal) value="{{$jurnal->id_jurnal_guru}}" @endisset>
 					<div class="row mb-3">
 						<div class="col-md-12">
-							<label for="tanggal">Tanggal</label>
-							<input class="form-control" id="tanggal" name="tanggal" value="@if(isset($jurnal)){{$jurnal->tanggal_upload}}@else{{date('Y-m-d')}}@endif" disabled>
+							<label for="tanggal_upload">Tanggal</label>
+							<input class="form-control" id="tanggal_upload" name="tanggal_upload" value="@if(isset($jurnal)){{$jurnal->tanggal_upload}}@else{{date('Y-m-d')}}@endif" readonly>
 						</div>
 					</div>
 					<div class="row mb-3">
@@ -54,7 +54,7 @@
 		var data = new FormData($('#formMateri')[0])
 		$('.btnSimpan').attr('disabled',true).html('<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>LOADING...')
 		$.ajax({
-				url: '{{route("main.menuUtama.agendaEvent.save")}}',
+				url: '{{route("guru.jurnal.save")}}',
 				type: 'POST',
 				data: data,
 				async: true,
@@ -62,7 +62,7 @@
 				contentType: false,
 				processData: false,
 				success: function(data){
-					if(data.code==200){
+					if(data.status=='success'){
 						Swal.fire({
 							icon: 'success',
 							title: 'Berhasil',

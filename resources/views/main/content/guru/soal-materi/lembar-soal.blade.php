@@ -159,6 +159,7 @@
 						<input type="number" min="0" name="poin_pertanyaan" id="poin_pertanyaan" class="form-control" value="0" placeholder="Masukkan angka poin pertanyaan ...">
 					</div>
 					<div class="col-12 mt-3">
+						<a href="{{route('guru.soalTulis.main')}}" class="btn btn-secondary btnKeluar">KELUAR</a>
 						<button class="btn btn-primary btnSimpanPertanyaan">SIMPAN PERTANYAAN</button>
 					</div>
 				</div>

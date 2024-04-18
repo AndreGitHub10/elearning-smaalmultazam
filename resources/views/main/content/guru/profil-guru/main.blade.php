@@ -88,7 +88,7 @@ $tambah = true;
 								<textarea class="form-control" name="alamat" id="alamat" cols="30" rows="5">@isset($guru->alamat) {{$guru->alamat}} @endisset</textarea>
 							</div>
 						</div>
-						<div class="col-12 col-md-6">
+						{{-- <div class="col-12 col-md-6">
 							<div class="row p-2">
 								<div class="col-6 p-2 gradient-green-yellow mb-2">
 									<label for="">Tugas Utama</label>
@@ -129,7 +129,6 @@ $tambah = true;
 												<td>12345</td>
 												<td>Hari Sumpah Pemuda</td>
 												<td>
-													{{-- <button class="btn btn-dark btn-purple p-2"><i class='bx bx-edit-alt mx-1'></i></button> --}}
 													<button class="btn btn-danger p-2"><i class='bx bx-trash mx-1'></i></button>
 												</td>
 											</tr>
@@ -169,7 +168,6 @@ $tambah = true;
 												<td>1</td>
 												<td>Hari Sumpah Pemuda</td>
 												<td>
-													{{-- <button class="btn btn-dark btn-purple p-2"><i class='bx bx-edit-alt mx-1'></i></button> --}}
 													<button class="btn btn-danger p-2"><i class='bx bx-trash mx-1'></i></button>
 												</td>
 											</tr>
@@ -177,11 +175,10 @@ $tambah = true;
 									</table>
 								</div>
 							</div>
-						</div>
+						</div> --}}
 					</div>
 					<hr>
 					<div class="d-flex gap-2">
-						<button class="btn btn-secondary px-4">KEMBALI</button>
 						<button class="btn btn-primary px-4 btnSimpan">SIMPAN</button>
 					</div>
 				</form>

@@ -19,6 +19,13 @@ use Auth, Help, CLog, DB, DataTables, GRes;
 
 class SoalTulisController extends Controller
 {
+	protected $data;
+
+	public function __construct()
+	{
+		$this->data['title'] = 'Soal';
+	}
+
 	public function main(Request $request)
 	{
 		if ($request->ajax()) {
@@ -50,7 +57,12 @@ class SoalTulisController extends Controller
 			})->addColumn('nama_guru', function ($row) {
 				return $row->guru ? $row->guru->nama : '-';
 			})->addColumn('actions', function ($row) {
-				$html = "<button onclick='aktifSoal($row->id_soal)' class='btn btn-dark btn-purple p-2'><i class='bx bx-search-alt-2 mx-1'></i></button>";
+				$html = "";
+				if ($row->tampilkan_nilai) {
+					$html .= "<button onclick='hiddenNilai($row->id_soal)' class='btn btn-secondary p-2'><i class='bx bx-low-vision mx-1'></i></button>";
+				} else {
+					$html .= "<button onclick='hiddenNilai($row->id_soal)' class='btn btn-dark btn-purple p-2'><i class='bx bx-low-vision mx-1'></i></button>";
+				}
 				$html .= "<button onclick='tambahSoal($row->id_soal)' class='btn ms-1 btn-primary p-2'><i class='bx bx-edit-alt mx-1'></i></button>";
 				$html .= "<button onclick='hapusSoal($row->id_soal)' class='btn ms-1 btn-danger p-2'><i class='bx bx-trash mx-1'></i></button>";
 				return $html;
@@ -93,7 +105,6 @@ class SoalTulisController extends Controller
 			$logPayload['file'] = $e->getFile();
 			$logPayload['message'] = $e->getMessage();
 			$logPayload['line'] = $e->getLine();
-			return $logPayload;
 			CLog::catchError($request->merge(['log_payload' => $logPayload])); # Logging
 			return Help::resMsg(null, 500);
 		}
@@ -348,5 +359,31 @@ class SoalTulisController extends Controller
 			CLog::catchError($request);
 			return Help::resMsg(null, 500);
 		}
+	}
+
+	public function showNilai(Request $request)
+	{
+		$rules = [
+			'id' => 'required',
+		];
+		$message = [
+			'id.required' => 'Id Wajib Diisi',
+		];
+		$validate = Validator::make($request->all(), $rules, $message);
+
+		if ($validate->fails()) {
+			return response()->json(['message' => $validate->errors()->all()[0]], 201);
+		}
+
+		$soal = Soal::find($request->id);
+		$soal->tampilkan_nilai = !$soal->tampilkan_nilai;
+
+		if (!$soal->save()) {
+			return response()->json(['message' => 'Gagal'], 201);
+		}
+		if ($soal->tampilkan_nilai) {
+			return Help::resMsg('Nilai Diaktifkan', 200);
+		}
+		return Help::resMsg('Nilai Dinonaktifkan', 200);
 	}
 }

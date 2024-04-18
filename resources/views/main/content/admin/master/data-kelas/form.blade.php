@@ -26,7 +26,7 @@
 								<option value="3" @isset($kelas) @if ($kelas->kelas_tingkat==3) selected @endif @endisset>XII</option>
 							</select>
 						</div>
-						<div class="col-12 col-md-6 mb-3">
+						<div class="col-12 mb-3">
 							<label for="guru_id" class="form-label">Wali Kelas *</label>
 							<select name="guru_id" aria-controls="guru_id" class="form-select select2" id="guru_id" required>
 								<option value="">-PILIH-</option>
@@ -35,7 +35,7 @@
 								@endforeach
 							</select>
 						</div>
-						<div class="col-12 col-md-6 mb-3">
+						{{-- <div class="col-12 col-md-6 mb-3">
 							<label for="tahun_ajaran_id" class="form-label">Tahun Ajaran *</label>
 							<select name="tahun_ajaran_id" aria-controls="tahun_ajaran_id" class="form-select select2" id="tahun_ajaran_id" required>
 								<option value="">-PILIH-</option>
@@ -43,7 +43,7 @@
 									<option value="{{$item->id_tahun_ajaran}}" @isset($kelas) @if($kelas->tahun_ajaran_id==$item->id_tahun_ajaran) selected @endif @endisset>{{$item->nama_tahun_ajaran}}</option>
 								@endforeach
 							</select>
-						</div>
+						</div> --}}
 					</div>
 					<hr>
 					<div class="d-flex gap-2">

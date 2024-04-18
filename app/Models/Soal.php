@@ -28,6 +28,10 @@ class Soal extends Model
 		return $this->hasMany(Pertanyaan::class, 'soal_id', 'id_soal');
 	}
 
+	public function jawaban_siswa(){
+		return $this->hasMany(JawabanSiswa::class, 'soal_id', 'id_soal');
+	}
+
 	public static function store($request)
 	{
 		$save = new Soal;

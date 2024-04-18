@@ -1,7 +1,6 @@
 @extends('main.layouts.index')
 
 @section('content')
-	@include('main.include.breadcrumb')
 
 	<div class="row row-cols-1 row-cols-md-2 row-cols-xl-4">
 		<div class="col">
@@ -12,7 +11,7 @@
 							<h6 class="my-1">{{'$siswa'}}</h6>
 						</div>
 						<div class="mx-auto">
-							<h6 class="my-1">Siswa</h6>
+							<h6 class="my-1">Soal</h6>
 						</div>
 					</div>
 				</div>

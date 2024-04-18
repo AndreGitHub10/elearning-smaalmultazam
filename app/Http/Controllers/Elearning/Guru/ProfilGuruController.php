@@ -6,10 +6,18 @@ use App\Http\Controllers\Controller;
 use App\Models\Guru;
 use Illuminate\Http\Request;
 use Auth;
+use App\Http\Libraries\compressFile;
 use Illuminate\Support\Facades\Validator;
 
 class ProfilGuruController extends Controller
 {
+	protected $data;
+
+	public function __construct()
+	{
+		$this->data['title'] = 'Profil Guru';
+	}
+
 	public function main()
 	{
 		$data['guru'] = Guru::where('users_id', Auth::user()->id)->first();

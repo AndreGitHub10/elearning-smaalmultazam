@@ -21,7 +21,7 @@
 								<th>Aksi</th>
 							</tr>
 						</thead>
-						<tbody>
+						{{-- <tbody>
 							<tr>
 								<td>1</td>
 								<td>Nama Mata Pelajaran</td>
@@ -33,7 +33,7 @@
 									<button class="btn btn-success btnLihat"><i class="bx bx-book-open mx-auto"></i></button>
 								</td>
 							</tr>
-						</tbody>
+						</tbody> --}}
 					</table>
 				</div>
 			</div>
@@ -49,22 +49,129 @@
 <!--Sweetalert -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-	var routeKerjakan = "{{route('elearning.main.kerjakan')}}"
-	$(document).ready(()=>{
-		$('#dataTable').DataTable({
-			scrollX:true
+	var routeDatatable = "{{route('siswa.materi.main')}}"
+	$(document).ready(async ()=>{
+		await dataTable()
+	})
+
+	async function dataTable() {
+		const loading = '<div class=spinner-grow text-primary" role="status"> <span class="visually-hidden">Loading...</span></div>'
+		let sDom = `
+		<'row mb-2'
+		<'col-sm-2'l>
+		<'col-sm-3 templateTahunAjaran'>
+		<'col-sm-2 templateSemester'>
+		<'col-sm-2 templateMapel'>
+		<'col-sm-3'>
+		>
+		<'row mt-2'<'col-sm-12'tr>>
+		<'row mt-2'<'col-sm-5'i><'col-sm-7'p>>
+		`
+		await $('#dataTable').DataTable({
+			sDom: sDom,
+			stateSave: false,
+			scrollX:true,
+			serverSide: true,
+			processing: true,
+			destroy: true,
+			language: {
+				processing: loading+' '+loading+' '+loading,
+				// lengthMenu: `
+				// 	Display<br>
+				// 	<select name="dataTable_length" aria-controls="dataTable" class="form-select form-select-sm">
+					// 		<option value="10">10</option>
+					// 		<option value="20">20</option>
+					// 		<option value="30">30</option>
+					// 		<option value="40">40</option>
+					// 		<option value="50">50</option>
+					// 	</select>
+					// `,
+					search: 'Cari',
+					searchPlaceholder: 'Masukkan kata kunci',
+				},
+			ajax: {
+				url: routeDatatable,
+				// data: {status: status},
+			},
+			columns: [
+				{data:'DT_RowIndex', name:'DT_RowIndex', render: (data, type, row)=>{
+					return `<p class="m-0 p-1">${data}</p>`
+				}},
+				{data:'judul', name:'judul'},
+				{data:'nama_mapel', name:'nama_mapel'},
+				{data:'nama_guru', name:'nama_guru'},
+				{data:'tanggal_upload', name:'tanggal_upload'},
+				{data:'actions', name:'actions'}
+			],
 		})
-	})
-	
-	$('.btnKerjakan').click((e)=>{
-		e.preventDefault()
-	})
-	
-	$('.btnMulai').click((e)=>{
-		e.preventDefault()
-		window.location = routeKerjakan
-		// console.log(routeKerjakan);
-	})
+			
+		const templateKelas = `
+			<div class="d-inline">
+				<label class="my-1 pe-1">Kelas</label>
+				<select name="status" aria-controls="status" class="form-select form-select-sm" id="status" onchange="filter()">
+					<option value="">Semua</option>
+					<option value="1">Aktif</option>
+					<option value="0">Tidak Aktif</option>
+				</select>
+			</div>
+		`;
+			
+		const templateTahunAjaran = `
+			<div class="d-inline">
+				<label class="my-1 pe-1">Tahun Ajaran</label>
+				<select name="status" aria-controls="status" class="form-select form-select-sm" id="status" onchange="filter()">
+					<option value="">Semua</option>
+					<option value="1">Aktif</option>
+					<option value="0">Tidak Aktif</option>
+				</select>
+			</div>
+		`;
+			
+		const templateSemester = `
+			<div class="d-inline">
+				<label class="my-1 pe-1">Semester</label>
+				<select name="status" aria-controls="status" class="form-select form-select-sm" id="status" onchange="filter()">
+					<option value="">Semua</option>
+					<option value="1">Aktif</option>
+					<option value="0">Tidak Aktif</option>
+				</select>
+			</div>
+		`;
+		
+		// $("div.templateMapel").html(templateKelas)
+		// $("div.templateTahunAjaran").html(templateTahunAjaran)
+		// $("div.templateSemester").html(templateSemester)
+	}
+
+	function downloadFile(id_materi,judul) {
+		$.post('',{id_materi})
+		.done((data) => {
+			if (data.status=='fail') {
+				Swal.fire({
+					icon: 'warning',
+					title: 'Whoops',
+					text: data.message,
+					showConfirmButton: false,
+					timer: 1300,
+				})
+			} else {
+				let file = data;
+				let link = document.createElement('a');
+				link.setAttribute('href', file);
+				link.setAttribute('download', `${judul}`); // Need to modify filename ...
+				link.click();
+			}
+		})
+		.fail(()=>{
+			Swal.fire({
+				icon: 'error',
+				title: 'Whoops..',
+				text: 'Terjadi kesalahan silahkan ulangi kembali',
+				showConfirmButton: false,
+				timer: 1300,
+			})
+		})
+	}
 
 </script>
 @endpush

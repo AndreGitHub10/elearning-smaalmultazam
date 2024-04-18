@@ -232,6 +232,7 @@
                 showConfirmButton: false,
                 timer: 2500
             })
+            $.post("{{route('siswa.kerjakan.selesaikan')}}",{id_soal:$('input[name=ids]').val()})
             setTimeout(() => {
                 window.location = "{{ route('siswa.dashboard') }}"
             }, 2500);

@@ -2,7 +2,7 @@
 	<div class="col-12">
 		<div class="card">
 			<div class="card-header bg-main-website text-white">
-				@if (isset($data_guru))
+				@if (isset($mapel))
 				Edit
 				@else
 				Tambah
@@ -11,10 +11,14 @@
 			</div>
 			<div class="card-body">
 				<form id="formDataGuru">
-					<input type="hidden" name="id" @isset($data_guru) value="{{$data_guru->id_guru}}" @endisset>
-					<div class="mb-3">
-						<label for="judul" class="form-label">Tahun Ajaran *</label>
-						<input type="text" class="form-control" name="judul" id="judul" placeholder="Judul Materi" @isset($data_guru) value="{{$data_guru->nama}}" @endisset>
+					<input type="hidden" name="id" @isset($mapel) value="{{$mapel->id_mapel}}" @endisset>
+					<div class="row">
+						<div class="col-12">
+							<div class="mb-3">
+								<label for="nama_mapel" class="form-label">Nama Mata Pelajaran *</label>
+								<input type="text" class="form-control" name="nama_mapel" id="nama_mapel" placeholder="Judul Materi" @isset($mapel) value="{{$mapel->nama_mapel}}" @endisset>
+							</div>
+						</div>
 					</div>
 					<hr>
 					<div class="d-flex gap-2">
@@ -46,7 +50,7 @@
 		var data = new FormData($('#formDataGuru')[0])
 		$('.btnSimpan').attr('disabled',true).html('<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>LOADING...')
 		$.ajax({
-				url: '{{route("main.menuUtama.agendaEvent.save")}}',
+				url: '{{route("admin.mataPelajaran.save")}}',
 				type: 'POST',
 				data: data,
 				async: true,
@@ -54,7 +58,7 @@
 				contentType: false,
 				processData: false,
 				success: function(data){
-					if(data.code==200){
+					if(data.status=='success'){
 						Swal.fire({
 							icon: 'success',
 							title: 'Berhasil',

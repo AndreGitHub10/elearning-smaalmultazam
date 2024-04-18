@@ -32,4 +32,8 @@ class Kelas extends Model
 	{
 		return $this->belongsTo(TahunAjaran::class, 'tahun_ajaran_id','id_tahun_ajaran');
 	}
+
+	public function materi_share() {
+		return $this->hasMany(MateriShare::class, 'kelas_id', 'id_kelas');
+	}
 }

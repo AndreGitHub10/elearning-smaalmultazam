@@ -12,16 +12,25 @@ use Illuminate\Support\Facades\Validator;
 
 class DataKelasController extends Controller
 {
+	protected $data;
+
+	public function __construct()
+	{
+		$this->data['title'] = 'Data Kelas';
+		$this->data['breadCrumb'] = ['Data Master'];
+	}
+
 	public function main(Request $request)
 	{
+		$data = $this->data;
 		if ($request->ajax()) {
-			$data = Kelas::orderBy('id_kelas', 'DESC')
+			$kelas = Kelas::orderBy('id_kelas', 'DESC')
 				->with(['guru', 'tahun_ajaran'])
 				->when($request->id_tahun_ajaran != '', function ($q) use ($request) {
 					$q->where('tahun_ajaran_id', $request->id_tahun_ajaran);
 				})
 				->get();
-			return DataTables::of($data)->addIndexColumn()->addColumn('kelas', function ($row) {
+			return DataTables::of($kelas)->addIndexColumn()->addColumn('kelas', function ($row) {
 				$kelas = '-';
 				switch ($row->kelas_tingkat) {
 					case '1':
@@ -68,13 +77,13 @@ class DataKelasController extends Controller
 	{
 		$rules = [
 			'kelas_tingkat' => 'required',
-			'tahun_ajaran_id' => 'required',
+			// 'tahun_ajaran_id' => 'required',
 			'nama_kelas' => 'required',
 			'guru_id' => 'required',
 		];
 		$message = [
 			'kelas_tingkat.required' => 'Kolom Kelas Wajib Diisi',
-			'tahun_ajaran_id.required' => 'Kolom Tahun Ajaran Wajib Diisi',
+			// 'tahun_ajaran_id.required' => 'Kolom Tahun Ajaran Wajib Diisi',
 			'nama_kelas.required' => 'Kolom Nama Kelas Wajib Diisi',
 			'guru_id.required' => 'Kolom Wali Kelas Wajib Diisi',
 		];
@@ -90,7 +99,7 @@ class DataKelasController extends Controller
 		}
 		$kelas->nama_kelas = $request->nama_kelas;
 		$kelas->guru_id = $request->guru_id;
-		$kelas->tahun_ajaran_id = $request->tahun_ajaran_id;
+		// $kelas->tahun_ajaran_id = $request->tahun_ajaran_id;
 		$kelas->kelas_tingkat = $request->kelas_tingkat;
 		if ($kelas->save()) {
 			return ['code' => 200, 'status' => 'success', 'Berhasil.'];

@@ -47,9 +47,9 @@
 <!--Sweetalert -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-	var routeDatatable = "{{route('elearning.mataPelajaran.main')}}";
-	var routeMataPelajaranAdd = "{{route('elearning.mataPelajaran.add')}}";
-	var routeMataPelajaranDelete = "{{route('elearning.mataPelajaran.add')}}";
+	var routeDatatable = "{{route('admin.mataPelajaran.main')}}";
+	var routeMataPelajaranAdd = "{{route('admin.mataPelajaran.add')}}";
+	var routeMataPelajaranDelete = "{{route('admin.mataPelajaran.delete')}}";
 	$(document).ready( async () => {
 		await dataTable()
 	})
@@ -102,7 +102,7 @@
 		});
 			
 		const templateTambah = `
-			<button onclick="tambahMataPelajaran()" class='btn btn-primary p-2 w-100'><i class='bx bx-plus' ></i>Tambah</button>
+			<button onclick="tambahMapel()" class='btn btn-primary p-2 w-100'><i class='bx bx-plus' ></i>Tambah</button>
 		`;
 
 		const templateTahunAjaran = `
@@ -116,11 +116,11 @@
 			</div>
 		`;
 
-		$("div.templateTahunAjaran").html(templateTahunAjaran)
+		// $("div.templateTahunAjaran").html(templateTahunAjaran)
 		$("div.templateTambah").html(templateTambah)
 	}
 
-	function tambahMataPelajaran(id='') {
+	function tambahMapel(id='') {
 		$('.main-page').hide();
 		var url = routeMataPelajaranAdd
 		$.post(url, {id:id})
@@ -137,7 +137,7 @@
 		})
 	}
 	
-	function hapusMataPelajaran(id) {
+	function hapusMapel(id) {
 		Swal.fire({
 			title: "Apakah Anda Yakin?",
 			text: "Data Tersebut Akan Dihapus!",

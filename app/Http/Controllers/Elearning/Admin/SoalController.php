@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Elearning\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Pertanyaan;
 use App\Models\Soal;
 use Illuminate\Http\Request;
 use DataTables;
@@ -47,10 +48,27 @@ class SoalController extends Controller
 			})->addColumn('nama_guru', function ($row) {
 				return $row->guru ? $row->guru->nama : '-';
 			})->addColumn('actions', function ($row) {
-				$html = "<button onclick='lihat($row->id_soal)' class='btn ms-1 btn-primary p-2'><i class='bx bx-spreadsheet mx-1'></i></button>";
+				$html = "<button onclick='previewSoal($row->id_soal)' class='btn ms-1 btn-primary p-2'><i class='bx bx-spreadsheet mx-1'></i></button>";
 				return $html;
 			})->rawColumns(['actions', 'tanggal'])->toJson();
 		}
 		return view('main.content.admin.soal.main',$data);
+	}
+	
+	public function preview(Request $request) {
+		$data['soal'] = Soal::where('id_soal',$request->id)->first();
+		$data['pertanyaan'] = Pertanyaan::selectRaw("
+				id_pertanyaan,
+				pertanyaan_text,
+				nomor
+			")->
+			with(['pilihan_jawaban', 'pertanyaan_file'])->
+			where('soal_id',$request->id)->
+			get();
+		if (!$data['soal']||!$data['pertanyaan']) {
+			return ['status' => 'fail', 'message' => 'Soal tidak ditemukan'];
+		}
+		$content = view('main.content.admin.soal.preview',$data)->render();
+		return ['status' => 'success', 'message' => 'Soal berhasil ditemukan', 'content' => $content];
 	}
 }

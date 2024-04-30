@@ -180,10 +180,18 @@ class DataSiswaController extends Controller
 		foreach ($array[0] as $key => $value) {
 			DB::beginTransaction();
 			$newUser = $newGuru = (object) [];
+			if ($value[0]==''||$value[1]=='') {
+				DB::rollback();
+				continue;
+			}
 			$newUser->email = $value[0];
 			$newUser->no_induk = $value[0];
 			foreach ($urutan as $key2 => $value2) {
 				$newGuru->{$value2} = isset($value[$key2 + 1]) ? $value[$key2 + 1] : '';
+			}
+			if (Users::where('email',$newUser->email)->orWhere('no_induk',$newUser->no_induk)->first()) {
+				DB::rollback();
+				continue;
 			}
 			if (!$saveUser = Users::storeSiswa($newUser)) {
 				DB::rollback();

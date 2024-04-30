@@ -16,7 +16,7 @@ class AdminElearning
 	 */
 	public function handle(Request $request, Closure $next)
 	{
-		if (Auth::user() && Auth::user()->level_user === 2) {
+		if (Auth::user() && in_array(Auth::user()->level_user,[2,5])) {
 			return $next($request);
 		}
 		if ($request->ajax()) {

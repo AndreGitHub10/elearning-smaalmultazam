@@ -214,10 +214,11 @@ Route::middleware(['auth'])->group(function () {
 				->as('soal.')
 				->group(function () {
 					Route::get('/', 'main')->name('main');
+					Route::post('/preview', 'preview')->name('preview');
 				});
 			# END MASTER > SOAL
 
-			# START MASTER > SOAL
+			# START MASTER > DOKUMEN
 			Route::controller(AdminDokumenController::class)
 				->prefix('dokumen')
 				->as('dokumen.')
@@ -227,7 +228,7 @@ Route::middleware(['auth'])->group(function () {
 					Route::post('/save', 'save')->name('save');
 					Route::post('/delete', 'delete')->name('delete');
 				});
-			# END MASTER > SOAL
+			# END MASTER > DOKUMEN
 		});
 	# END MIDDLEWARE ADMIN
 
@@ -401,6 +402,159 @@ Route::middleware(['auth'])->group(function () {
 					Route::post('/', 'add')->name('add');
 				});
 			# END JURNAL GURU
+
+			# START MASTER > TAHUN AJARAN
+			Route::controller(TahunAjaranController::class)
+				->prefix('tahun-ajaran')
+				->as('tahunAjaran.')
+				->group(function () {
+					Route::get('/', 'main')->name('main');
+					Route::post('/add', 'add')->name('add');
+					Route::post('/save', 'save')->name('save');
+					Route::post('/delete', 'delete')->name('delete');
+				});
+			# END MASTER > TAHUN AJARAN
+
+			# START MASTER > DATA GURU
+			Route::controller(DataGuruController::class)
+				->prefix('data-guru')
+				->as('dataGuru.')
+				->group(function () {
+					Route::get('/', 'main')->name('main');
+					Route::post('/', 'add')->name('add');
+					Route::post('/save', 'save')->name('save');
+					Route::post('/delete', 'delete')->name('delete');
+					Route::get('/import', 'import')->name('import');
+					Route::post('/importUpload', 'importUpload')->name('importUpload');
+					Route::post('/importSave', 'importSave')->name('importSave');
+				});
+			# END MASTER > DATA GURU
+
+			# START MASTER > DATA KELAS
+			Route::controller(DataKelasController::class)
+				->prefix('data-kelas')
+				->as('dataKelas.')
+				->group(function () {
+					Route::get('/', 'main')->name('main');
+					Route::post('/add', 'add')->name('add');
+					Route::post('/save', 'save')->name('save');
+					Route::post('/delete', 'delete')->name('delete');
+				});
+			# END MASTER > DATA KELAS
+
+			# START MASTER > DATA SISWA
+			Route::controller(DataSiswaController::class)
+				->prefix('data-siswa')
+				->as('dataSiswa.')
+				->group(function () {
+					Route::get('/', 'main')->name('main');
+					Route::post('/', 'add')->name('add');
+					Route::post('/save', 'save')->name('save');
+					Route::post('/delete', 'delete')->name('delete');
+					Route::get('/import', 'import')->name('import');
+					Route::post('/import-save', 'importSave')->name('importSave');
+				});
+			# END MASTER > DATA SISWA
+
+			# START MASTER > DATA KELAS SISWA
+			Route::controller(KelasSiswaController::class)
+				->prefix('kelas-siswa')
+				->as('kelasSiswa.')
+				->group(function () {
+					Route::get('/', 'main')->name('main');
+					Route::post('/', 'add')->name('add');
+					Route::get('/cari-siswa', 'cariSiswa')->name('cariSiswa');
+					Route::get('/naik-kelas', 'naikKelas')->name('naikKelas');
+					Route::get('/naik-kelas-form', 'naikKelasForm')->name('naikKelasForm');
+					Route::post('/naik-kelas-save', 'naikKelasSave')->name('naikKelasSave');
+					Route::post('/save', 'save')->name('save');
+					Route::post('/delete', 'delete')->name('delete');
+				});
+			# END MASTER > DATA KELAS SISWA
+
+			# START MASTER > MATA PELAJARAN
+			Route::controller(MataPelajaranController::class)
+				->prefix('mata-pelajaran')
+				->as('mataPelajaran.')
+				->group(function () {
+					Route::get('/', 'main')->name('main');
+					Route::post('/', 'add')->name('add');
+					Route::post('/save', 'save')->name('save');
+					Route::post('/delete', 'delete')->name('delete');
+				});
+			# END MASTER > MATA PELAJARAN
+
+			# START MASTER > MAPEL PENGAMPU
+			Route::controller(MapelPengampuController::class)
+				->prefix('mapel-pengampu')
+				->as('mapelPengampu.')
+				->group(function () {
+					Route::get('/', 'main')->name('main');
+					Route::post('/', 'add')->name('add');
+					Route::post('/save', 'save')->name('save');
+				});
+			# END MASTER > MAPEL PENGAMPU
+
+			# START MASTER > MATERI ELEARNING
+			Route::controller(MateriElearningController::class)
+				->prefix('materi-elearning')
+				->as('materiElearning.')
+				->group(function () {
+					Route::get('/', 'main')->name('main');
+					Route::post('/', 'add')->name('add');
+				});
+			# END MASTER > MATERI ELEARNING
+
+			# START MASTER > RAPOR
+			Route::controller(AdminRaporController::class)
+				->prefix('rapor')
+				->as('rapor.')
+				->group(function () {
+					Route::get('/', 'main')->name('main');
+					Route::post('/', 'add')->name('add');
+					Route::post('/save', 'save')->name('save');
+					Route::post('/delete', 'delete')->name('delete');
+				});
+			# END MASTER > RAPOR
+
+			# START MASTER > NILAI SISWA
+			Route::controller(AdminNilaiSiswaController::class)
+				->prefix('nilai-siswa')
+				->as('nilaiSiswa.')
+				->group(function () {
+					Route::get('/', 'main')->name('main');
+				});
+			# END MASTER > NILAI SISWA
+
+			# START MASTER > MATERI
+			Route::controller(AdminMateriController::class)
+				->prefix('materi')
+				->as('materi.')
+				->group(function () {
+					Route::get('/', 'main')->name('main');
+				});
+			# END MASTER > MATERI
+
+			# START MASTER > SOAL
+			Route::controller(SoalController::class)
+				->prefix('soal')
+				->as('soal.')
+				->group(function () {
+					Route::get('/', 'main')->name('main');
+				});
+			# END MASTER > SOAL
+
+			# START MASTER > SOAL
+			Route::controller(AdminDokumenController::class)
+				->prefix('dokumen')
+				->as('dokumen.')
+				->group(function () {
+					Route::get('/', 'main')->name('main');
+					Route::post('/', 'add')->name('add');
+					Route::post('/save', 'save')->name('save');
+					Route::post('/delete', 'delete')->name('delete');
+				});
+			# END MASTER > SOAL
 		});
 });
 # END MIDDLEWARE AUTH

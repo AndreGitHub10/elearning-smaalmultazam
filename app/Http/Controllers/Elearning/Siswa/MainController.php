@@ -36,7 +36,7 @@ class MainController extends Controller{
     public function contentSoal(Request $request){
         $data['data'] = Pertanyaan::selectRaw("
                             id_pertanyaan,
-                            (case when (pertanyaan.pertanyaan_text='' or pertanyaan.pertanyaan_text is null) then false else true end) as pertanyaan_text,
+                            pertanyaan_text,
                             nomor
                         ")->
                         with(['pilihan_jawaban', 'pertanyaan_file'])->

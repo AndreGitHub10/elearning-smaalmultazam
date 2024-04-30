@@ -9,7 +9,7 @@
 	<div class="col-12">
 		<div class="card">
 			<div class="card-body d-flex">
-				<img src="{{ Auth::user()->foto ? asset(Auth::user()->foto) : asset('admin/assets/images/avatars/no-avatar.png')}}" class="rounded-circle" alt="...">
+				<img src="{{ Auth::user()->foto ? asset(Auth::user()->foto) : asset('admin/assets/images/avatars/no-avatar.png')}}" class="rounded-circle" alt="profil" width="120" height="120">
 				<div class="d-inline-block ms-4">
 					<table>
 						<tbody>

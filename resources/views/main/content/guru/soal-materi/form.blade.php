@@ -99,10 +99,11 @@
 					<hr>
 					<div class="d-flex gap-2">
 						<button class="btn btn-secondary px-4 btnKembali">KEMBALI</button>
+						@if(isset($soal))
+						<button class="btn btn-warning px-4 btnLanjutkan text-white me-0 ms-auto"><i class='bx bx-book-content'></i> PEMBUATAN SOAL</button>
+						@else
 						<button class="btn btn-primary px-4 btnSimpan">@if (isset($soal)) SIMPAN @else BUAT SOAL @endif</button>
-						@isset($soal)
-							<button class="btn btn-warning px-4 btnLanjutkan text-white me-0 ms-auto"><i class='bx bx-book-content'></i> PEMBUATAN SOAL</button>
-						@endisset
+						@endif
 					</div>
 				</form>
 			</div>

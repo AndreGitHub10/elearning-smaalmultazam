@@ -35,7 +35,8 @@ class DashboardController extends Controller
 			$data['praktek'] = PraktekBaikGuru::where('user_id', Auth::user()->id)->count();
 			return view('main.content.guru.dashboard.main', $data);
 		}
-		if (Auth::user()->level_user == '2') {
+		// if (Auth::user()->level_user == '2') {
+		if (in_array(Auth::user()->level_user,['2','5'])) {
 			$data['siswa'] = Siswa::where('status', 'Siswa Aktif')->count();
 			$data['guru'] = Guru::count();
 			$data['rapor'] = SpreadsheetShare::count();

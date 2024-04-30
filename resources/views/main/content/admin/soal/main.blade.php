@@ -41,6 +41,7 @@
         <div class="other-page"></div>
 	</div>
 </div>
+<div class="modal-page"></div>
 @endsection
 
 @push('script')
@@ -51,6 +52,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 	var routeDatatable = "{{route('admin.soal.main')}}"
+	var routePreview = "{{route('admin.soal.preview')}}"
 	
 	$(document).ready(async()=>{
         await dataTable()
@@ -176,6 +178,34 @@
 		.fail(() => {
 			$('.other-page').empty();
 			$('.main-page').show();
+		})
+	}
+    
+	function previewSoal(id='') {
+		// $('.main-page').hide();
+		var url = routePreview
+		$.post(url, {id:id})
+		.done(function(data){
+			if(data.status == 'success'){
+				$('.modal-page').html(data.content).fadeIn();
+			} else {
+				Swal.fire({
+					icon: 'warning',
+					title: 'Whoops',
+					text: data.message,
+					showConfirmButton: false,
+					timer: 1300,
+				})
+			}
+		})
+		.fail(() => {
+			Swal.fire({
+				icon: 'error',
+				title: 'Whoops',
+				text: "Terjadi Kesalahan Sistem",
+				showConfirmButton: false,
+				timer: 1300,
+			})
 		})
 	}
 

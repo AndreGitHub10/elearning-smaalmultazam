@@ -53,20 +53,25 @@
 <script>
 	var routeDatatable = "{{route('admin.soal.main')}}"
 	var routePreview = "{{route('admin.soal.preview')}}"
-	
+	var tahunAjaran = {{Illuminate\Support\Js::from($tahun_ajaran)}};
+	var kelas = {{Illuminate\Support\Js::from($kelas)}};
+	var mataPelajaran = {{Illuminate\Support\Js::from($mataPelajaran)}};
 	$(document).ready(async()=>{
         await dataTable()
 	})
 
-	async function dataTable() {
+	async function filter() {
+		await dataTable($('#id_tahun_ajaran').val(),$('#id_kelas').val(),$('#id_semester').val(),$('#id_mapel').val())
+	}
+
+	async function dataTable(id_tahun_ajaran='',id_kelas='',id_semester='',id_mapel='') {
 		const loading = '<div class=spinner-grow text-primary" role="status"> <span class="visually-hidden">Loading...</span></div>'
 		let sDom = `
 		<'row mb-2'
-		<'col-sm-2 templateTambah'>
 		<'col-sm-2'l>
-		<'col-sm-2 templateKelas'>
 		<'col-sm-3 templateTahunAjaran'>
-		<'col-sm-2 templateSemester'>
+		<'col-sm-2 templateKelas'>
+		<'col-sm-2 templateMataPelajaran'>
 		<'col-sm-1'>
 		>
 		<'row mt-2'<'col-sm-12'tr>>
@@ -96,7 +101,12 @@
 				},
 			ajax: {
 				url: routeDatatable,
-				// data: {status: status},
+				data: {
+					id_tahun_ajaran: id_tahun_ajaran,
+					id_kelas: id_kelas,
+					id_semester: id_semester,
+					id_mapel: id_mapel,
+				},
 			},
 			columns: [
 				{data:'DT_RowIndex', name:'DT_RowIndex', render: (data, type, row)=>{
@@ -111,28 +121,66 @@
 				{data:'actions', name:'actions'}
 			],
 		})
-        const templateTambah = `
-			<button onclick="tambahSoal()" class='btn btn-primary p-2 w-100'><i class='bx bx-plus' ></i>Tambah</button>
-		`;
+        // const templateTambah = `
+		// 	<button onclick="tambahSoal()" class='btn btn-primary p-2 w-100'><i class='bx bx-plus' ></i>Tambah</button>
+		// `;
 			
+		var kelas_option = '';
+
+		kelas.forEach(element => {
+			if (element.id_kelas==id_kelas) {
+				kelas_option += `<option value="${element.id_kelas}" selected>${element.nama_kelas}</option>`
+			} else {
+				kelas_option += `<option value="${element.id_kelas}">${element.nama_kelas}</option>`
+			}
+		});
+
 		const templateKelas = `
 			<div class="d-inline">
 				<label class="my-1 pe-1">Kelas</label>
-				<select name="status" aria-controls="status" class="form-select form-select-sm" id="status" onchange="filter()">
+				<select name="id_kelas" aria-controls="id_kelas" class="form-select form-select-sm" id="id_kelas" onchange="filter()">
 					<option value="">Semua</option>
-					<option value="1">Aktif</option>
-					<option value="0">Tidak Aktif</option>
+					${kelas_option}
 				</select>
 			</div>
 		`;
 			
+		var tahun_ajaran = '';
+
+		tahunAjaran.forEach(element => {
+			if (element.id_tahun_ajaran==id_tahun_ajaran) {
+				tahun_ajaran += `<option value="${element.id_tahun_ajaran}" selected>${element.nama_tahun_ajaran}</option>`
+			} else {
+				tahun_ajaran += `<option value="${element.id_tahun_ajaran}">${element.nama_tahun_ajaran}</option>`
+			}
+		});
+
 		const templateTahunAjaran = `
 			<div class="d-inline">
 				<label class="my-1 pe-1">Tahun Ajaran</label>
-				<select name="status" aria-controls="status" class="form-select form-select-sm" id="status" onchange="filter()">
+				<select name="id_tahun_ajaran" aria-controls="id_tahun_ajaran" class="form-select form-select-sm" id="id_tahun_ajaran" onchange="filter()">
 					<option value="">Semua</option>
-					<option value="1">Aktif</option>
-					<option value="0">Tidak Aktif</option>
+					${tahun_ajaran}
+				</select>
+			</div>
+		`;
+			
+		var mata_pelajaran = '';
+
+		mataPelajaran.forEach(element => {
+			if (element.id_mapel==id_mapel) {
+				mata_pelajaran += `<option value="${element.id_mapel}" selected>${element.nama_mapel}</option>`
+			} else {
+				mata_pelajaran += `<option value="${element.id_mapel}">${element.nama_mapel}</option>`
+			}
+		});
+
+		const templateMataPelajaran = `
+			<div class="d-inline">
+				<label class="my-1 pe-1">Mata Pelajaran</label>
+				<select name="id_mapel" aria-controls="id_mapel" class="form-select form-select-sm" id="id_mapel" onchange="filter()">
+					<option value="">Semua</option>
+					${mata_pelajaran}
 				</select>
 			</div>
 		`;
@@ -140,18 +188,19 @@
 		const templateSemester = `
 			<div class="d-inline">
 				<label class="my-1 pe-1">Semester</label>
-				<select name="status" aria-controls="status" class="form-select form-select-sm" id="status" onchange="filter()">
+				<select name="id_semester" aria-controls="id_semester" class="form-select form-select-sm" id="id_semester" onchange="filter()">
 					<option value="">Semua</option>
-					<option value="1">Aktif</option>
-					<option value="0">Tidak Aktif</option>
+					<option value="1">Semester 1</option>
+					<option value="0">Semester 2</option>
 				</select>
 			</div>
 		`;
 		
 		$("div.templateKelas").html(templateKelas)
-		$("div.templateTambah").html(templateTambah)
+		// $("div.templateTambah").html(templateTambah)
 		$("div.templateTahunAjaran").html(templateTahunAjaran)
-		$("div.templateSemester").html(templateSemester)
+		$("div.templateMataPelajaran").html(templateMataPelajaran)
+		// $("div.templateSemester").html(templateSemester)
 	}
 	
 	$('.btnKerjakan').click((e)=>{

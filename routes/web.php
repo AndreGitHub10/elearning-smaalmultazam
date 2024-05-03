@@ -284,6 +284,7 @@ Route::middleware(['auth'])->group(function () {
 					Route::get('/get-pertanyaan-file', 'getPertanyaanFile')->name('getPertanyaanFile');
 					Route::post('/store-pertanyaan-file', 'storePertanyaanFile')->name('storePertanyaanFile');
 					Route::post('/show-nilai', 'showNilai')->name('showNilai');
+					Route::post('/preview', 'preview')->name('preview');
 				});
 			# END SOAL TULIS
 

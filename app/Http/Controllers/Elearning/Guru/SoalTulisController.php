@@ -28,11 +28,21 @@ class SoalTulisController extends Controller
 
 	public function main(Request $request)
 	{
+		$user_id = Auth::user()->id;
 		if ($request->ajax()) {
 			$data = Soal::orderBy('id_soal', 'DESC')
-				->where('user_id', Auth::user()->id)
+				->where('user_id', $user_id)
 				->with('mata_pelajaran')
 				->with('guru')
+				->when($request->id_semester!='',function ($q) use ($request) {
+					$q->where('semester',$request->id_semester);
+				})
+				->when($request->id_kelas!='',function ($q) use ($request) {
+					$q->where('kelas_id',$request->id_kelas);
+				})
+				->when($request->id_tahun_ajaran!='',function ($q) use ($request) {
+					$q->where('tahun_ajaran_id',$request->id_tahun_ajaran);
+				})
 				->get();
 			return DataTables::of($data)->addIndexColumn()->addColumn('tanggal', function ($row) {
 				return date('H:i:s d F Y', strtotime($row->mulai_pengerjaan)) . '<br>S/D<br>' . date('H:i:s d F Y', strtotime($row->selesai_pengerjaan));
@@ -57,18 +67,25 @@ class SoalTulisController extends Controller
 			})->addColumn('nama_guru', function ($row) {
 				return $row->guru ? $row->guru->nama : '-';
 			})->addColumn('actions', function ($row) {
-				$html = "";
+				$html = "<button onclick='previewSoal($row->id_soal)' class='btn btn-primary p-2'><i class='bx bx-spreadsheet mx-1'></i></button>";
 				if ($row->tampilkan_nilai) {
-					$html .= "<button onclick='hiddenNilai($row->id_soal)' class='btn btn-secondary p-2'><i class='bx bx-low-vision mx-1'></i></button>";
+					$html .= "<button onclick='hiddenNilai($row->id_soal)' class='btn ms-1 btn-secondary p-2'><i class='bx bx-low-vision mx-1'></i></button>";
 				} else {
-					$html .= "<button onclick='hiddenNilai($row->id_soal)' class='btn btn-dark btn-purple p-2'><i class='bx bx-low-vision mx-1'></i></button>";
+					$html .= "<button onclick='hiddenNilai($row->id_soal)' class='btn ms-1 btn-dark btn-purple p-2'><i class='bx bx-low-vision mx-1'></i></button>";
 				}
 				$html .= "<button onclick='tambahSoal($row->id_soal)' class='btn ms-1 btn-primary p-2'><i class='bx bx-edit-alt mx-1'></i></button>";
 				$html .= "<button onclick='hapusSoal($row->id_soal)' class='btn ms-1 btn-danger p-2'><i class='bx bx-trash mx-1'></i></button>";
 				return $html;
 			})->rawColumns(['actions', 'tanggal'])->toJson();
 		}
-		return view('main.content.guru.soal-materi.main');
+		$data['kelas'] = Kelas::get();
+		$data['tahunAjaran'] = TahunAjaran::get();
+		$data['mataPelajaran'] = MataPelajaran::whereHas('kelas_mapel', function ($q) use ($user_id) {
+			$q->whereHas('guru', function ($qq) use ($user_id) {
+				$qq->where('users_id', $user_id);
+			});
+		})->get();
+		return view('main.content.guru.soal-materi.main',$data);
 	}
 
 	public function add(Request $request)
@@ -385,5 +402,22 @@ class SoalTulisController extends Controller
 			return Help::resMsg('Nilai Diaktifkan', 200);
 		}
 		return Help::resMsg('Nilai Dinonaktifkan', 200);
+	}
+
+	public function preview(Request $request) {
+		$data['soal'] = Soal::where('id_soal',$request->id)->first();
+		$data['pertanyaan'] = Pertanyaan::selectRaw("
+				id_pertanyaan,
+				pertanyaan_text,
+				nomor
+			")->
+			with(['pilihan_jawaban', 'pertanyaan_file'])->
+			where('soal_id',$request->id)->
+			get();
+		if (!$data['soal']||!$data['pertanyaan']) {
+			return ['status' => 'fail', 'message' => 'Soal tidak ditemukan'];
+		}
+		$content = view('main.content.guru.soal-materi.preview',$data)->render();
+		return ['status' => 'success', 'message' => 'Soal berhasil ditemukan', 'content' => $content];
 	}
 }

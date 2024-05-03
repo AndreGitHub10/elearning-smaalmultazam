@@ -41,6 +41,7 @@
         <div class="other-page"></div>
 	</div>
 </div>
+<div class="modal-page"></div>
 @endsection
 
 @push('script')
@@ -54,12 +55,20 @@
 	var routeKerjakan = "{{route('guru.main.kerjakan')}}"
 	var routeMateriAdd = "{{route('guru.soalTulis.add')}}"
 	var routeShowNilai = "{{route('guru.soalTulis.showNilai')}}"
+	var routePreview = "{{route('guru.soalTulis.preview')}}"
+	var tahunAjaran = {{Illuminate\Support\Js::from($tahunAjaran)}};
+	var kelas = {{Illuminate\Support\Js::from($kelas)}};
+	var mataPelajaran = {{Illuminate\Support\Js::from($mataPelajaran)}};
 	
 	$(document).ready(async()=>{
-        await dataTable()
+        await dataTable($('#id_tahun_ajaran').val(),$('#id_kelas').val(),$('#id_mapel').val())
 	})
 
-	async function dataTable() {
+	async function filter() {
+		await dataTable($('#id_tahun_ajaran').val(),$('#id_kelas').val(),$('#id_mapel').val())
+	}
+
+	async function dataTable(id_tahun_ajaran='',id_kelas='',id_mapel='') {
 		const loading = '<div class=spinner-grow text-primary" role="status"> <span class="visually-hidden">Loading...</span></div>'
 		let sDom = `
 		<'row mb-2'
@@ -67,7 +76,7 @@
 		<'col-sm-2'l>
 		<'col-sm-2 templateKelas'>
 		<'col-sm-3 templateTahunAjaran'>
-		<'col-sm-2 templateSemester'>
+		<'col-sm-2 templateMataPelajaran'>
 		<'col-sm-1'>
 		>
 		<'row mt-2'<'col-sm-12'tr>>
@@ -97,7 +106,11 @@
 				},
 			ajax: {
 				url: routeDatatable,
-				// data: {status: status},
+				data: {
+					id_tahun_ajaran: id_tahun_ajaran,
+					id_kelas: id_kelas,
+					id_mapel: id_mapel
+				},
 			},
 			columns: [
 				{data:'DT_RowIndex', name:'DT_RowIndex', render: (data, type, row)=>{
@@ -116,24 +129,42 @@
 			<button onclick="tambahSoal()" class='btn btn-primary p-2 w-100'><i class='bx bx-plus' ></i>Tambah</button>
 		`;
 			
+		var kelas_option = '';
+
+		kelas.forEach(element => {
+			if (element.id_kelas==id_kelas) {
+				kelas_option += `<option value="${element.id_kelas}" selected>${element.nama_kelas}</option>`
+			} else {
+				kelas_option += `<option value="${element.id_kelas}">${element.nama_kelas}</option>`
+			}
+		});
+
 		const templateKelas = `
 			<div class="d-inline">
 				<label class="my-1 pe-1">Kelas</label>
-				<select name="status" aria-controls="status" class="form-select form-select-sm" id="status" onchange="filter()">
+				<select name="id_kelas" aria-controls="id_kelas" class="form-select form-select-sm" id="id_kelas" onchange="filter()">
 					<option value="">Semua</option>
-					<option value="1">Aktif</option>
-					<option value="0">Tidak Aktif</option>
+					${kelas_option}
 				</select>
 			</div>
 		`;
 			
+		var tahun_ajaran = '';
+
+		tahunAjaran.forEach(element => {
+			if (element.id_tahun_ajaran==id_tahun_ajaran) {
+				tahun_ajaran += `<option value="${element.id_tahun_ajaran}" selected>${element.nama_tahun_ajaran}</option>`
+			} else {
+				tahun_ajaran += `<option value="${element.id_tahun_ajaran}">${element.nama_tahun_ajaran}</option>`
+			}
+		});
+
 		const templateTahunAjaran = `
 			<div class="d-inline">
 				<label class="my-1 pe-1">Tahun Ajaran</label>
-				<select name="status" aria-controls="status" class="form-select form-select-sm" id="status" onchange="filter()">
+				<select name="id_tahun_ajaran" aria-controls="id_tahun_ajaran" class="form-select form-select-sm" id="id_tahun_ajaran" onchange="filter()">
 					<option value="">Semua</option>
-					<option value="1">Aktif</option>
-					<option value="0">Tidak Aktif</option>
+					${tahun_ajaran}
 				</select>
 			</div>
 		`;
@@ -148,11 +179,32 @@
 				</select>
 			</div>
 		`;
+
+		var mata_pelajaran = '';
+
+		mataPelajaran.forEach(element => {
+			if (element.id_mapel==id_mapel) {
+				mata_pelajaran += `<option value="${element.id_mapel}" selected>${element.nama_mapel}</option>`
+			} else {
+				mata_pelajaran += `<option value="${element.id_mapel}">${element.nama_mapel}</option>`
+			}
+		});
+
+		const templateMataPelajaran = `
+			<div class="d-inline">
+				<label class="my-1 pe-1">Mata Pelajaran</label>
+				<select name="id_mapel" aria-controls="id_mapel" class="form-select form-select-sm" id="id_mapel" onchange="filter()">
+					<option value="">Semua</option>
+					${mata_pelajaran}
+				</select>
+			</div>
+		`;
 		
 		$("div.templateKelas").html(templateKelas)
 		$("div.templateTambah").html(templateTambah)
 		$("div.templateTahunAjaran").html(templateTahunAjaran)
-		$("div.templateSemester").html(templateSemester)
+		// $("div.templateSemester").html(templateSemester)
+		$("div.templateMataPelajaran").html(templateMataPelajaran)
 	}
 	
 	$('.btnKerjakan').click((e)=>{
@@ -199,6 +251,34 @@
 				// $('#dataTabel').DataTable().ajax.reload()
 				// location.reload()
 				}, 1100);
+			} else {
+				Swal.fire({
+					icon: 'warning',
+					title: 'Whoops',
+					text: data.message,
+					showConfirmButton: false,
+					timer: 1300,
+				})
+			}
+		})
+		.fail(() => {
+			Swal.fire({
+				icon: 'error',
+				title: 'Whoops',
+				text: "Terjadi Kesalahan Sistem",
+				showConfirmButton: false,
+				timer: 1300,
+			})
+		})
+	}
+
+	function previewSoal(id='') {
+		// $('.main-page').hide();
+		var url = routePreview
+		$.post(url, {id:id})
+		.done(function(data){
+			if(data.status == 'success'){
+				$('.modal-page').html(data.content).fadeIn();
 			} else {
 				Swal.fire({
 					icon: 'warning',

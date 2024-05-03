@@ -3,8 +3,11 @@
 namespace App\Http\Controllers\Elearning\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Kelas;
+use App\Models\MataPelajaran;
 use App\Models\Pertanyaan;
 use App\Models\Soal;
+use App\Models\TahunAjaran;
 use Illuminate\Http\Request;
 use DataTables;
 
@@ -24,6 +27,15 @@ class SoalController extends Controller
 			$soal = Soal::orderBy('id_soal', 'DESC')
 				->with('mata_pelajaran')
 				->with('guru')
+				->when($request->id_mapel!='',function ($q) use ($request) {
+					$q->where('mapel_id',$request->id_mapel);
+				})
+				->when($request->id_kelas!='',function ($q) use ($request) {
+					$q->where('kelas_id',$request->id_kelas);
+				})
+				->when($request->id_tahun_ajaran!='',function ($q) use ($request) {
+					$q->where('tahun_ajaran_id',$request->id_tahun_ajaran);
+				})
 				->get();
 			return DataTables::of($soal)->addIndexColumn()->addColumn('tanggal', function ($row) {
 				return date('H:i:s d F Y', strtotime($row->mulai_pengerjaan)) . '<br>S/D<br>' . date('H:i:s d F Y', strtotime($row->selesai_pengerjaan));
@@ -52,6 +64,9 @@ class SoalController extends Controller
 				return $html;
 			})->rawColumns(['actions', 'tanggal'])->toJson();
 		}
+		$data['kelas'] = Kelas::get();
+		$data['tahun_ajaran'] = TahunAjaran::get();
+		$data['mataPelajaran'] = MataPelajaran::get();
 		return view('main.content.admin.soal.main',$data);
 	}
 	

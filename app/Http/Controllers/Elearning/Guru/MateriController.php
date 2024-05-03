@@ -32,6 +32,15 @@ class MateriController extends Controller
 				->where('user_id', $user_id)
 				->with('mata_pelajaran')
 				->has('mata_pelajaran')
+				->when($request->id_semester!='',function ($q) use ($request) {
+					$q->where('semester',$request->id_semester);
+				})
+				->when($request->id_kelas!='',function ($q) use ($request) {
+					$q->where('kelas_id',$request->id_kelas);
+				})
+				->when($request->id_tahun_ajaran!='',function ($q) use ($request) {
+					$q->where('tahun_ajaran_id',$request->id_tahun_ajaran);
+				})
 				->get();
 			return DataTables::of($data)->addIndexColumn()->addColumn('tanggal', function ($row) {
 				return date('Y F d H:i:s', strtotime($row->tanggal_upload));

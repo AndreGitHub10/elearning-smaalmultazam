@@ -16,7 +16,7 @@ class Siswa
      */
     public function handle(Request $request, Closure $next)
     {
-        if (Auth::user() && Auth::user()->level_user === 4) {
+        if (Auth::user() && Auth::user()->level_user == 4) {
             return $next($request);
         }
         if ($request->ajax()) {

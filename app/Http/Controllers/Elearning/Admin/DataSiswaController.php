@@ -8,6 +8,7 @@ use App\Models\Siswa;
 use App\Models\Users;
 use Illuminate\Http\Request;
 use DataTables, CLog, Help, DB, Excel;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 class DataSiswaController extends Controller
@@ -36,6 +37,7 @@ class DataSiswaController extends Controller
 			// 	return $row->kelas_siswa ? $row->kelas_siswa->kelas->nama_kelas : '-';
 			})->addColumn('actions', function ($row) {
 				$html = "<button onclick='tambahSiswa($row->id_siswa)' class='btn ms-1 btn-primary p-2'><i class='bx bx-edit-alt mx-1'></i></button>";
+				$html .= "<button onclick='resetPassword($row->users_id)' class='btn ms-1 btn-danger p-2'><i class='bx bx-key mx-1'></i></button>";
 				$html .= "<button onclick='hapusSiswa($row->id_siswa)' class='btn ms-1 btn-danger p-2'><i class='bx bx-trash mx-1'></i></button>";
 				return $html;
 			})->rawColumns(['actions', 'foto'])->toJson();
@@ -247,5 +249,27 @@ class DataSiswaController extends Controller
 			CLog::catchError($request);
 			return Help::resMsg(null, 500);
 		}
+	}
+
+	public function resetPassword(Request $request) 
+	{
+		$rules = [
+			'id' => 'required',
+		];
+		$message = [
+			'id.required' => 'ID Tidak Ditemukan',
+		];
+		$validate = Validator::make($request->all(), $rules, $message);
+		if ($validate->fails()) {
+			return response()->json(['message' => $validate->errors()->all()[0]], 201);
+		}
+		if (!$user = Users::where('id',$request->id)->first()) {
+			return ['status' => 'fail', 'message' => 'Gagal me-reset password, User tidak ditemukan'];
+		}
+		$user->password = Hash::make($user->email);
+		if(!$user->save()){
+			return ['status' => 'fail', 'message' => 'Terjadi kesalahan sistem'];
+		}
+		return ['status' => 'success', 'message' => 'Password berhasil di perbarui'];
 	}
 }

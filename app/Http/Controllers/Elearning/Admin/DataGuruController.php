@@ -29,20 +29,39 @@ class DataGuruController extends Controller
 		$data = $this->data;
 		if ($request->ajax()) {
 			$guru = Guru::orderBy('id_guru', 'DESC')
+				->with('kelas_mapel',function ($q) {
+					$q->with('mata_pelajaran');
+				})
 				->get();
 			return DataTables::of($guru)->addIndexColumn()->addColumn('foto', function ($row) {
 				return '<a>Lihat Foto</a>';
 			})->addColumn('tugas_utama', function ($row) {
-				return '-';
+				$html = '-';
+				if(count($row->kelas_mapel)){
+					$html = '';
+					foreach ($row->kelas_mapel as $key => $value) {
+						if($value->mata_pelajaran){
+							if ($key) {
+								$html .= '<br>';
+							}
+							$html .= '+ '.$value->mata_pelajaran->nama_mapel;
+						}
+					}
+				};
+				return $html;
 			})->addColumn('tugas_tambahan', function ($row) {
+				if ($row->is_piket) {
+					return '+ Guru Piket';
+				};
 				return '-';
 			})->addColumn('status', function ($row) {
 				return 'aktif';
 			})->addColumn('actions', function ($row) {
 				$html = "<button onclick='tambahDataGuru($row->id_guru)' class='btn ms-1 btn-primary p-2'><i class='bx bx-edit-alt mx-1'></i></button>";
+				$html .= "<button onclick='resetPassword($row->users_id)' class='btn ms-1 btn-danger p-2'><i class='bx bx-key mx-1'></i></button>";
 				$html .= "<button onclick='hapusDataGuru($row->id_guru)' class='btn ms-1 btn-danger p-2'><i class='bx bx-trash mx-1'></i></button>";
 				return $html;
-			})->rawColumns(['actions', 'foto'])->toJson();
+			})->rawColumns(['actions', 'foto', 'tugas_utama', 'tugas_tambahan'])->toJson();
 		}
 		return view('main.content.admin.master.data-guru.main', $data);
 	}
@@ -93,6 +112,14 @@ class DataGuruController extends Controller
 		$guru->alamat = $request->alamat ? $request->alamat : '';
 		$guru->no_tlp = $request->no_tlp ? $request->no_tlp : '';
 		$guru->nip = $request->nip ? $request->nip : '';
+		$guru->is_piket = false;
+		if ($request->tugas_tambahan) {
+			foreach ($request->tugas_tambahan as $key => $value) {
+				if ($value=='piket') {
+					$guru->is_piket = true;
+				}
+			}
+		}
 		if (isset($request->foto)) {
 			if ($guru->foto != '') {
 				if (file_exists('uploads/guru/' . $guru->foto)) {
@@ -244,5 +271,27 @@ class DataGuruController extends Controller
 			CLog::catchError($request);
 			return Help::resMsg(null, 500);
 		}
+	}
+
+	public function resetPassword(Request $request) 
+	{
+		$rules = [
+			'id' => 'required',
+		];
+		$message = [
+			'id.required' => 'ID Tidak Ditemukan',
+		];
+		$validate = Validator::make($request->all(), $rules, $message);
+		if ($validate->fails()) {
+			return response()->json(['message' => $validate->errors()->all()[0]], 201);
+		}
+		if (!$user = Users::where('id',$request->id)->first()) {
+			return ['status' => 'fail', 'message' => 'Gagal me-reset password, User tidak ditemukan'];
+		}
+		$user->password = Hash::make($user->email);
+		if(!$user->save()){
+			return ['status' => 'fail', 'message' => 'Terjadi kesalahan sistem'];
+		}
+		return ['status' => 'success', 'message' => 'Password berhasil di perbarui'];
 	}
 }

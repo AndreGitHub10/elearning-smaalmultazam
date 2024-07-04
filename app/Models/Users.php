@@ -57,4 +57,13 @@ class Users extends Authenticatable
 			return null;
 		}
 	}
+
+	public function getPiketAttribute()
+	{
+		if ($this->guru) {
+			return $this->guru->is_piket;
+		} else {
+			return false;
+		}
+	}
 }

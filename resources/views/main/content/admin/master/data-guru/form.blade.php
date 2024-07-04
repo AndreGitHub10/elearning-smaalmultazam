@@ -78,6 +78,13 @@
 								<input type="file" class="form-control" id="foto" name="foto" accept="image/*" onchange="loadFile(event)">
 							</div>
 						</div>
+						<div class="col-12 mb-3">
+							<label for="no_tlp" class="form-label">Tugas Tambahan</label>
+							<select class="form-select select2" name="tugas_tambahan[]" id="tugas_tambahan" multiple>
+								<option value="">-PILIH-</option>
+								<option value="piket" @isset($data_guru) @if ($data_guru->is_piket) selected @endif @endisset>Guru Piket</option>
+							</select>
+						</div>
 					</div>
 					<hr>
 					<div class="d-flex gap-2">

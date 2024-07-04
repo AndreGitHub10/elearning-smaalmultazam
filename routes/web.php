@@ -24,6 +24,7 @@ use App\Http\Controllers\Elearning\Guru\PraktekBaikGuruController;
 use App\Http\Controllers\Elearning\Guru\ProfilGuruController;
 use App\Http\Controllers\Elearning\Guru\RaporController;
 use App\Http\Controllers\Elearning\Guru\SoalTulisController;
+use App\Http\Controllers\Elearning\GuruPiket\JurnalGuruController as AppJurnalGuruController;
 use App\Http\Controllers\Elearning\Siswa\DashboardController as DashboardSiswa;
 use App\Http\Controllers\Elearning\Siswa\DataNilaiController;
 use App\Http\Controllers\Elearning\Siswa\MainController;
@@ -126,6 +127,7 @@ Route::middleware(['auth'])->group(function () {
 					Route::post('/delete', 'delete')->name('delete');
 					Route::get('/import', 'import')->name('import');
 					Route::post('/import-save', 'importSave')->name('importSave');
+					Route::post('/reset-password', 'resetPassword')->name('resetPassword');
 				});
 			# END MASTER > DATA SISWA
 
@@ -244,6 +246,7 @@ Route::middleware(['auth'])->group(function () {
 				->group(function () {
 					Route::get('/', 'main')->name('main');
 					Route::post('/save', 'save')->name('save');
+					Route::post('ubah-password', 'ubahPassword')->name('ubahPassword');
 				});
 			# END PROFIL GURU
 
@@ -330,6 +333,26 @@ Route::middleware(['auth'])->group(function () {
 		});
 	# END MIDDLEWARE GURU
 
+	# START MIDDLEWARE GURU PIKET
+	Route::middleware(['guruPiket'])
+		->prefix('guru-piket')
+		->as('guruPiket.')
+		->group(function () {
+
+			# JURNAL SEMUA GURU
+			Route::prefix('jurnal-guru')
+				->as('jurnalGuru.')
+				->group(function () {
+					Route::controller(AppJurnalGuruController::class)
+						->group(function () {
+							Route::get('/','main')->name('main');
+							Route::post('/add','add')->name('add');
+						});
+				});
+			# END JURNAL SEMUA GURU
+		});
+	# END MIDDLEWARE GURU PIKET
+
 	# START MIDDLEWARE SISWA
 	Route::middleware(['siswa'])
 		->prefix('siswa')
@@ -367,6 +390,7 @@ Route::middleware(['auth'])->group(function () {
 				->group(function () {
 					Route::get('/', 'main')->name('main');
 					Route::post('save', 'save')->name('save');
+					Route::post('ubah-password', 'ubahPassword')->name('ubahPassword');
 				});
 			# END PROFIL SISWA
 

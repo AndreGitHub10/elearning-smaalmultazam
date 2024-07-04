@@ -7,6 +7,9 @@ use App\Models\Guru;
 use Illuminate\Http\Request;
 use Auth;
 use App\Http\Libraries\compressFile;
+use App\Models\KelasMapel;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 class ProfilGuruController extends Controller
@@ -21,6 +24,17 @@ class ProfilGuruController extends Controller
 	public function main()
 	{
 		$data['guru'] = Guru::where('users_id', Auth::user()->id)->first();
+		$data['tugas_utama'] = KelasMapel::where('guru_id',$data['guru']->id_guru)->
+			with(['mata_pelajaran','kelas'])->
+			has('mata_pelajaran')->
+			has('kelas')->
+			get();
+		$data['tugas_tambahan'] = [];
+		if (Auth::user()->piket) {
+			$data['tugas_tambahan'][] = (object)[
+				'nama_tugas' => 'Guru Piket'
+			];
+		}
 		return view('main.content.guru.profil-guru.main', $data);
 	}
 
@@ -55,6 +69,7 @@ class ProfilGuruController extends Controller
 		if (!$guru = Guru::where('id_guru', $request->id_guru)->first()) {
 			return ['status' => 'fail', 'message' => 'Data Guru tidak ditemukan'];
 		}
+		$guru->nama = $request->nama;
 		$guru->nip = $request->nip;
 		$guru->no_tlp = $request->no_tlp;
 		$guru->gender = $request->gender;
@@ -91,5 +106,37 @@ class ProfilGuruController extends Controller
 			return ['status' => 'fail', 'message' => 'Gagal Menyimpan, coba lagi!'];
 		}
 		return ['status' => 'success', 'message' => 'Berhasil menyimpan!'];
+	}
+
+	public function ubahPassword(Request $request) {
+		$params = [
+			'password_baru' => 'required|min:3',
+			'ulangi_password_baru' => 'required|min:3|same:password_baru',
+		];
+		$message = [
+			'password_baru.required' => 'Password Baru harus diisi',
+			'ulangi_password_baru.required' => 'Ulangi Password Baru harus diisi',
+			'password_baru.min' => 'Password Baru minimal 3 karakter',
+			'ulangi_password_baru.min' => 'Ulangi Password Baru minimal 3 karakter',
+			'ulangi_password_baru.same' => 'Ulangi Password Tidak Sama',
+		];
+		$validator = Validator::make($request->all(), $params, $message);
+		if ($validator->fails()) {
+			foreach ($validator->errors()->toArray() as $key => $val) {
+				$msg = $val[0]; # Get validation messages, only one
+				break;
+			}
+			return ['status' => 'fail', 'message' => $msg];
+		}
+
+		if (!$user = User::where('id',Auth::user()->id)->first()) {
+			return ['status' => 'fail', 'message' => 'Terjadi kesalahan, silahkan lakukan logout dan login'];
+		}
+
+		$user->password = Hash::make($request->password_baru);
+		if(!$user->save()){
+			return ['status' => 'fail', 'message' => 'Terjadi kesalahan, silahkan lakukan logout dan login'];
+		}
+		return ['status' => 'success', 'message' => 'Password berhasil di perbarui'];
 	}
 }

@@ -292,6 +292,17 @@ if (!isset($title)) {
 					<div class="menu-title">Praktek Baik Guru</div>
 				</a>
 			</li>
+			@if (Auth::user()->piket)
+				<li class="menu-label">Guru Piket</li>
+				<li class="{{ ($title == 'Jurnal Semua Guru') ? 'mm-active' : ''}}">
+					<a href="{{route('guruPiket.jurnalGuru.main')}}">
+						<div class="parent-icon">
+							<i style="color: #fff" class='bx bx-file'></i>
+						</div>
+						<div class="menu-title">Jurnal Semua Guru</div>
+					</a>
+				</li>
+			@endif
 		@endif
 
 		@endauth

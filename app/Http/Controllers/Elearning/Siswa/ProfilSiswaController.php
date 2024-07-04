@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Elearning\Siswa;
 use App\Http\Controllers\Controller;
 use App\Http\Libraries\compressFile;
 use App\Models\Siswa;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Auth;
+use Illuminate\Support\Facades\Hash;
 
 class ProfilSiswaController extends Controller
 {
@@ -97,5 +99,37 @@ class ProfilSiswaController extends Controller
 			return ['status' => 'fail', 'message' => 'Gagal menyimpan data'];
 		}
 		return ['status' => 'success', 'message' => 'Berhasil menyimpan!'];
+	}
+
+	public function ubahPassword(Request $request) {
+		$params = [
+			'password_baru' => 'required|min:3',
+			'ulangi_password_baru' => 'required|min:3|same:password_baru',
+		];
+		$message = [
+			'password_baru.required' => 'Password Baru harus diisi',
+			'ulangi_password_baru.required' => 'Ulangi Password Baru harus diisi',
+			'password_baru.min' => 'Password Baru minimal 3 karakter',
+			'ulangi_password_baru.min' => 'Ulangi Password Baru minimal 3 karakter',
+			'ulangi_password_baru.same' => 'Ulangi Password Tidak Sama',
+		];
+		$validator = Validator::make($request->all(), $params, $message);
+		if ($validator->fails()) {
+			foreach ($validator->errors()->toArray() as $key => $val) {
+				$msg = $val[0]; # Get validation messages, only one
+				break;
+			}
+			return ['status' => 'fail', 'message' => $msg];
+		}
+
+		if (!$user = User::where('id',Auth::user()->id)->first()) {
+			return ['status' => 'fail', 'message' => 'Terjadi kesalahan, silahkan lakukan logout dan login'];
+		}
+
+		$user->password = Hash::make($request->password_baru);
+		if(!$user->save()){
+			return ['status' => 'fail', 'message' => 'Terjadi kesalahan sistem'];
+		}
+		return ['status' => 'success', 'message' => 'Password berhasil di perbarui'];
 	}
 }

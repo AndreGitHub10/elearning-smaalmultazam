@@ -69,9 +69,46 @@ $tambah = true;
 						<hr>
 						<div class="d-flex gap-2">
 							<button class="btn btn-primary px-4 btnSimpan">SIMPAN</button>
+							<button type="button" class="btn btn-danger btnModalPassword" data-toggle="modal" data-target="#ubahPasswordModal">
+								<i class='bx bx-key'></i> 
+								Ubah Password
+							</button>
 						</div>
 					</div>
 				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="ubahPasswordModal" tabindex="-1" aria-labelledby="ubahPasswordModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="ubahPasswordModalLabel">UBAH PASSWORD</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<form id="formPassword">
+					<div class="row">
+						<div class="mb-3 col-12">
+							<label for="password_baru" class="form-label">Password Baru *</label>
+							<div class="input-group" id="show_hide_password">
+								<input type="password" class="form-control border-end-0" id="password_baru" name="password_baru" placeholder="Password"> <a href="javascript:;" class="input-group-text bg-transparent" onclick="ubahPassword(this)"><i class='bx bx-hide'></i></a>
+							</div>
+						</div>
+						<div class="mb-3 col-12">
+							<label for="ulangi_password_baru" class="form-label">Ulangi Password Baru *</label>
+							<div class="input-group" id="show_hide_password">
+								<input type="password" class="form-control border-end-0" id="ulangi_password_baru" name="ulangi_password_baru" placeholder="Password"> <a href="javascript:;" class="input-group-text bg-transparent" onclick="ubahPassword(this)"><i class='bx bx-hide'></i></a>
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary btnSimpanPassword">SIMPAN</button>
 			</div>
 		</div>
 	</div>
@@ -84,6 +121,10 @@ $tambah = true;
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="{{asset('zoom/js/jquery.pan.js')}}"></script><!--zoomImage-->
 <script>
+	var modalPassword = new bootstrap.Modal(document.getElementById('ubahPasswordModal'), {
+		backdrop: 'static',
+		keyboard: false
+	})
 	$(document).ready(function () {
 		$('.select2').select2({
 			theme: 'bootstrap-5',
@@ -152,6 +193,72 @@ $tambah = true;
 					timer: 1300,
 				})
 				$('.btnSimpan').attr('disabled',false).html('SIMPAN')
+			})
+	})
+
+	$('.btnModalPassword').click((e) => {
+		modalPassword.show()
+	})
+
+	function ubahPassword(ini){
+		const type = $(ini).prev().attr('type')
+		// const type = $('#input').attr('type')
+		if(type==='text'){
+			$(ini).prev().attr('type', 'password')
+			$(ini).children('i').addClass('bx-hide')
+			$(ini).children('i').removeClass('bx-show')
+			return // die()
+		}
+		$(ini).prev().attr('type', 'text')
+		$(ini).children('i').removeClass('bx-hide')
+		$(ini).children('i').addClass('bx-show')
+	}
+
+	$('.btnSimpanPassword').click((e) => {
+		e.preventDefault()
+		var data = new FormData($('#formPassword')[0])
+		$('.btnSimpanPassword').attr('disabled',true).html('<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>LOADING...')
+		$.ajax({
+				url: '{{route("siswa.profil.ubahPassword")}}',
+				type: 'POST',
+				data: data,
+				async: true,
+				cache: false,
+				contentType: false,
+				processData: false,
+				success: function(data){
+					if(data.status=='success'){
+						Swal.fire({
+							icon: 'success',
+							title: 'Berhasil',
+							text: data.message,
+							showConfirmButton: false,
+							timer: 1200
+						})
+						setTimeout(()=>{
+							location.reload()
+						}, 1100);
+						// location.reload()
+					}else{
+						Swal.fire({
+							icon: 'warning',
+							title: 'Whoops',
+							text: data.message,
+							showConfirmButton: false,
+							timer: 1300,
+						})
+					}
+					$('.btnSimpanPassword').attr('disabled',false).html('SIMPAN')
+				}
+			}).fail(()=>{
+				Swal.fire({
+					icon: 'error',
+					title: 'Whoops..',
+					text: 'Terjadi kesalahan silahkan ulangi kembali',
+					showConfirmButton: false,
+					timer: 1300,
+				})
+				$('.btnSimpanPassword').attr('disabled',false).html('SIMPAN')
 			})
 	})
 

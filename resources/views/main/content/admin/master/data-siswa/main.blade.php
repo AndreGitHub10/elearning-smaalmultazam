@@ -55,6 +55,7 @@
 	var routeDataSiswaAdd = "{{route('admin.dataSiswa.add')}}";
 	var routeDataSiswaDelete = "{{route('admin.dataSiswa.delete')}}";
 	var routeDataSiswaImport = "{{route('admin.dataSiswa.import')}}";
+	var routeDataSiswaResetPassword = "{{route('admin.dataSiswa.resetPassword')}}";
 	$(document).ready( async () => {
 		await dataTable()
 	})
@@ -186,6 +187,58 @@
 				.done(function(data){
 					console.log(data);
 					if(data.code == 200){
+						Swal.fire({
+							icon: 'success',
+							title: 'Berhasil',
+							text: data.message,
+							showConfirmButton: false,
+							timer: 1200
+						})
+						setTimeout(async ()=>{
+							await dataTable()
+							// $('#dataTabel').DataTable().ajax.reload()
+							// location.reload()
+						}, 1100);
+					} else {
+						Swal.fire({
+							icon: 'warning',
+							title: 'Whoops',
+							text: data.message,
+							showConfirmButton: false,
+							timer: 1300,
+						})
+					}
+				})
+				.fail(() => {
+					Swal.fire({
+						icon: 'error',
+						title: 'Whoops..',
+						text: 'Terjadi kesalahan silahkan ulangi kembali',
+						showConfirmButton: false,
+						timer: 1300,
+					})
+				})
+			}
+		});
+		
+	}
+
+	function resetPassword(id) {
+		Swal.fire({
+			title: "Apakah Anda Yakin?",
+			text: "Password User tersebut akan DIRESET!",
+			icon: "warning",
+			showCancelButton: true,
+			confirmButtonColor: "#3085d6",
+			cancelButtonColor: "#d33",
+			confirmButtonText: "Ya, Reset!"
+		}).then((result) => {
+			if (result.isConfirmed) {
+				var url = routeDataSiswaResetPassword
+				$.post(url, {id:id})
+				.done(function(data){
+					console.log(data);
+					if(data.status == 'success'){
 						Swal.fire({
 							icon: 'success',
 							title: 'Berhasil',

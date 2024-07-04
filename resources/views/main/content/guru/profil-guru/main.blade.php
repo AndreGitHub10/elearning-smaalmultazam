@@ -5,6 +5,7 @@ $tambah = true;
 @endphp
 
 @push('style')
+<link href="{{ asset('admin/assets/plugins/datatable/css/dataTables.bootstrap5.min.css') }}" rel="stylesheet">
 <link rel="stylesheet" type="text/css" href="{{asset('zoom/css/jquery.pan.css')}}"><!--zoomImage-->
 <style>
 	.gradient-green-yellow {
@@ -88,13 +89,13 @@ $tambah = true;
 								<textarea class="form-control" name="alamat" id="alamat" cols="30" rows="5">@isset($guru->alamat) {{$guru->alamat}} @endisset</textarea>
 							</div>
 						</div>
-						{{-- <div class="col-12 col-md-6">
+						<div class="col-12 col-md-6">
 							<div class="row p-2">
 								<div class="col-6 p-2 gradient-green-yellow mb-2">
 									<label for="">Tugas Utama</label>
 								</div>
 								<div class="col-6"></div>
-								<div class="col-5">
+								{{-- <div class="col-5">
 									<div class="mb-3">
 										<label for="kelas" class="form-label">Kelas</label>
 										<select name="kelas[]" id="kelas" class="form-control selectpicker select2 multi-select" multiple>
@@ -112,7 +113,7 @@ $tambah = true;
 								</div>
 								<div class="col-2 pt-4">
 									<button type="button" class="btn btn-success"><i class='bx bx-plus'></i></button>
-								</div>
+								</div> --}}
 								<div class="p-1">
 									<table class="table-responsive table table-striped table-bordered stripe row-border order-column" style="width:100%" id="dataTableMapel">
 										<thead>
@@ -124,14 +125,16 @@ $tambah = true;
 											</tr>
 										</thead>
 										<tbody>
+											@foreach ($tugas_utama as $item)
 											<tr>
-												<td>1</td>
-												<td>12345</td>
-												<td>Hari Sumpah Pemuda</td>
+												<td>{{$loop->index+1}}</td>
+												<td>{{$item->kelas->nama_kelas}}</td>
+												<td>{{$item->mata_pelajaran->nama_mapel}}</td>
 												<td>
-													<button class="btn btn-danger p-2"><i class='bx bx-trash mx-1'></i></button>
+													-
 												</td>
 											</tr>
+											@endforeach
 										</tbody>
 									</table>
 								</div>
@@ -143,7 +146,7 @@ $tambah = true;
 									<label for="">Tugas Tambahan</label>
 								</div>
 								<div class="col-6"></div>
-								<div class="col-10">
+								{{-- <div class="col-10">
 									<div class="mb-3">
 										<label for="tugas" class="form-label">Nama Tugas</label>
 										<select name="tugas[]" id="tugas" class="form-control selectpicker select2 multi-select" multiple>
@@ -153,9 +156,9 @@ $tambah = true;
 								</div>
 								<div class="col-2 pt-4">
 									<button type="button" class="btn btn-success"><i class='bx bx-plus'></i></button>
-								</div>
+								</div> --}}
 								<div class="p-1">
-									<table class="table-responsive table table-striped table-bordered stripe row-border order-column" style="width:100%" id="dataTableMapel">
+									<table class="table-responsive table table-striped table-bordered stripe row-border order-column" style="width:100%" id="dataTableTambahan">
 										<thead>
 											<tr>
 												<th>No</th>
@@ -164,24 +167,63 @@ $tambah = true;
 											</tr>
 										</thead>
 										<tbody>
+											@foreach ($tugas_tambahan as $item)
 											<tr>
-												<td>1</td>
-												<td>Hari Sumpah Pemuda</td>
+												<td>{{$loop->index+1}}</td>
+												<td>{{$item->nama_tugas}}</td>
 												<td>
-													<button class="btn btn-danger p-2"><i class='bx bx-trash mx-1'></i></button>
+													-
 												</td>
 											</tr>
+											@endforeach
 										</tbody>
 									</table>
 								</div>
 							</div>
-						</div> --}}
+						</div>
 					</div>
 					<hr>
 					<div class="d-flex gap-2">
 						<button class="btn btn-primary px-4 btnSimpan">SIMPAN</button>
+						<button type="button" class="btn btn-danger btnModalPassword" data-toggle="modal" data-target="#ubahPasswordModal">
+							<i class='bx bx-key'></i> 
+							Ubah Password
+						</button>
 					</div>
 				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="ubahPasswordModal" tabindex="-1" aria-labelledby="ubahPasswordModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="ubahPasswordModalLabel">UBAH PASSWORD</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<form id="formPassword">
+					<div class="row">
+						<div class="mb-3 col-12">
+							<label for="password_baru" class="form-label">Password Baru *</label>
+							<div class="input-group" id="show_hide_password">
+								<input type="password" class="form-control border-end-0" id="password_baru" name="password_baru" placeholder="Password"> <a href="javascript:;" class="input-group-text bg-transparent" onclick="ubahPassword(this)"><i class='bx bx-hide'></i></a>
+							</div>
+						</div>
+						<div class="mb-3 col-12">
+							<label for="ulangi_password_baru" class="form-label">Ulangi Password Baru *</label>
+							<div class="input-group" id="show_hide_password">
+								<input type="password" class="form-control border-end-0" id="ulangi_password_baru" name="ulangi_password_baru" placeholder="Password"> <a href="javascript:;" class="input-group-text bg-transparent" onclick="ubahPassword(this)"><i class='bx bx-hide'></i></a>
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary btnSimpanPassword">SIMPAN</button>
 			</div>
 		</div>
 	</div>
@@ -189,16 +231,25 @@ $tambah = true;
 @endsection
 
 @push('script')
+<script src="{{ asset('admin/assets/plugins/datatable/js/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('admin/assets/plugins/datatable/js/dataTables.bootstrap5.min.js') }}"></script>
 <script src="{{ asset('admin/assets/plugins/select2/js/select2.min.js') }}"></script>
 <!--Sweetalert -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="{{asset('zoom/js/jquery.pan.js')}}"></script><!--zoomImage-->
 <script>
+	var modalPassword = new bootstrap.Modal(document.getElementById('ubahPasswordModal'), {
+		backdrop: 'static',
+		keyboard: false
+	})
 	$('.pan').pan()
 	$(document).ready(function () {
 		$('.select2').select2({
 			theme: 'bootstrap-5',
 		});
+		$('#dataTableMapel').DataTable()
+		$('#dataTableTambahan').DataTable()
+
 	})
 	function loadFile(event) {
 		var btn = $('#btnOutPut')[0] // html DOM Object
@@ -253,6 +304,72 @@ $tambah = true;
 					timer: 1300,
 				})
 				$('.btnSimpan').attr('disabled',false).html('SIMPAN')
+			})
+	})
+
+	$('.btnModalPassword').click((e) => {
+		modalPassword.show()
+	})
+
+	function ubahPassword(ini){
+		const type = $(ini).prev().attr('type')
+		// const type = $('#input').attr('type')
+		if(type==='text'){
+			$(ini).prev().attr('type', 'password')
+			$(ini).children('i').addClass('bx-hide')
+			$(ini).children('i').removeClass('bx-show')
+			return // die()
+		}
+		$(ini).prev().attr('type', 'text')
+		$(ini).children('i').removeClass('bx-hide')
+		$(ini).children('i').addClass('bx-show')
+	}
+
+	$('.btnSimpanPassword').click((e) => {
+		e.preventDefault()
+		var data = new FormData($('#formPassword')[0])
+		$('.btnSimpanPassword').attr('disabled',true).html('<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>LOADING...')
+		$.ajax({
+				url: '{{route("guru.profilGuru.ubahPassword")}}',
+				type: 'POST',
+				data: data,
+				async: true,
+				cache: false,
+				contentType: false,
+				processData: false,
+				success: function(data){
+					if(data.status=='success'){
+						Swal.fire({
+							icon: 'success',
+							title: 'Berhasil',
+							text: data.message,
+							showConfirmButton: false,
+							timer: 1200
+						})
+						setTimeout(()=>{
+							location.reload()
+						}, 1100);
+						// location.reload()
+					}else{
+						Swal.fire({
+							icon: 'warning',
+							title: 'Whoops',
+							text: data.message,
+							showConfirmButton: false,
+							timer: 1300,
+						})
+					}
+					$('.btnSimpanPassword').attr('disabled',false).html('SIMPAN')
+				}
+			}).fail(()=>{
+				Swal.fire({
+					icon: 'error',
+					title: 'Whoops..',
+					text: 'Terjadi kesalahan silahkan ulangi kembali',
+					showConfirmButton: false,
+					timer: 1300,
+				})
+				$('.btnSimpanPassword').attr('disabled',false).html('SIMPAN')
 			})
 	})
 </script>

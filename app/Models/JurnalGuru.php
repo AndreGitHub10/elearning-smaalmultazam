@@ -10,4 +10,9 @@ class JurnalGuru extends Model
     use HasFactory;
 	protected $table = "jurnal_guru";
 	protected $primaryKey = "id_jurnal_guru";
+
+	public function user()
+	{
+		return $this->belongsTo(Users::class, 'user_id', 'id');
+	}
 }

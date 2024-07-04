@@ -22,6 +22,11 @@ class Users extends Authenticatable
 		return $this->hasOne(Guru::class, 'users_id', 'id');
 	}
 
+	public function jurnal_guru()
+	{
+		return $this->hasMany(JurnalGuru::class, 'user_id', 'id');
+	}
+
 	public static function storeGuru($request)
 	{
 		$user = new Users;

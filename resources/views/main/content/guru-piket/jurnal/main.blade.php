@@ -28,6 +28,7 @@
 						<thead>
 							<tr>
 								<th>No</th>
+								<th>Nama</th>
 								<th>Tanggal Upload</th>
 								<th>Isi Jurnal</th>
 								<th>Aksi</th>
@@ -63,23 +64,22 @@
 <script>
 	var routeMateriAdd = "{{route('guruPiket.jurnalGuru.add')}}";
 	var routeDatatable = "{{route('guruPiket.jurnalGuru.main')}}";
+	var routeExportPdf = "{{route('guruPiket.jurnalGuru.exportPdf')}}";
 	$(document).ready( async () => {
-		await dataTable($('#status').val())
+		await dataTable($('#start_date').val(),$('#end_date').val())
 	})
 	
-	function filter() {
-		dataTable($('#status').val())
+	async function filter() {
+		await dataTable($('#start_date').val(),$('#end_date').val())
 	}
 	
-	async function dataTable(status='') {
+	async function dataTable(start_date="{{date('Y-m-d')}}",end_date="{{date('Y-m-d')}}") {
 		const loading = '<div class=spinner-grow text-primary" role="status"> <span class="visually-hidden">Loading...</span></div>'
 		let sDom = `
 		<'row mb-2'
-		<'col-sm-2 templateTambah'>
-		<'col-sm-2'>
-		<'col-sm-2 templateKelas'>
+		<'col-sm-6 d-flex templateTanggal'>
 		<'col-sm-3 templateTahunAjaran'>
-		<'col-sm-3 templateSemester'>
+		<'col-sm-3 d-flex templateExport'>
 		>
 		<'row mt-2'<'col-sm-12'tr>>
 		<'row mt-2'<'col-sm-5'i><'col-sm-7'p>>
@@ -109,20 +109,32 @@
 				},
 			ajax: {
 				url: routeDatatable,
-				data: {status: status},
+				data: {
+					start_date: start_date,
+					end_date: end_date
+				},
 			},
 			columns: [
 				{data:'DT_RowIndex', name:'DT_RowIndex', render: (data, type, row)=>{
 					return `<p class="m-0 p-1">${data}</p>`
 				}},
+				{data:'nama', name:'nama'},
 				{data:'tanggal', name:'tanggal'},
 				{data:'jurnal', name:'jurnal'},
 				{data:'actions', name:'actions'}
 			],
 		});
 			
-		const templateTambah = `
-			<button onclick="tambahMateri()" class='btn btn-primary p-2 w-100'><i class='bx bx-plus' ></i>Tambah</button>
+		const templateTanggal = `
+			<div class="input-group me-2">
+				<label class="input-group-text" for="start_date">Start</label>
+				<input type="date" class="form-control" id="start_date" name="start_date" onchange="filter()" value="${start_date}">
+			</div>
+			<span>Sampai</span>
+			<div class="input-group ms-2">
+				<label class="input-group-text" for="end_date">End</label>
+				<input type="date" class="form-control" id="end_date" name="end_date" onchange="filter()" value="${end_date}">
+			</div>
 		`;
 			
 		const templateKelas = `
@@ -147,90 +159,101 @@
 			</div>
 		`;
 			
-		const templateSemester = `
-			<div class="d-inline">
-				<label class="my-1 pe-1">Semester</label>
-				<select name="status" aria-controls="status" class="form-select form-select-sm" id="status" onchange="filter()">
-					<option value="">Semua</option>
-					<option value="1">Aktif</option>
-					<option value="0">Tidak Aktif</option>
-				</select>
+		const templateExport = `
+			<div class="btn-group ms-auto">
+				<button onclick="exportPdf()" class='text-white btn btn-sm btn-warning p-2 w-100'><i class='bx bx-file-export'></i>Export Pdf</button>
+				<button type="button" class="text-white btn btn-sm btn-warning dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false" data-bs-reference="parent">
+					<span class="visually-hidden">Toggle Dropdown</span>
+				</button>
+				<div class="dropdown-menu">
+					<a class="dropdown-item" href="javascript:void(0)" onclick="exportPdf()">Export Pdf</a>
+					<a class="dropdown-item" href="javascript:void(0)" onclick="exportExcel()">Expert Excel</a>
+				</div>
 			</div>
 		`;
 		
 		// $("div.templateKelas").html(templateKelas)
-		// $("div.templateTambah").html(templateTambah)
 		// $("div.templateTahunAjaran").html(templateTahunAjaran)
-		// $("div.templateSemester").html(templateSemester)
+		$("div.templateTanggal").html(templateTanggal)
+		$("div.templateExport").html(templateExport)
 	}
-		
-		function tambahMateri(id='') {
-			$('.main-page').hide();
-			var url = routeMateriAdd
-			$.post(url, {id:id})
-			.done(function(data){
-				if(data.status == 'success'){
-					$('.other-page').html(data.content).fadeIn();
-				} else {
-					$('.main-page').show();
-				}
-			})
-			.fail(() => {
-				$('.other-page').empty();
+	
+	function tambahMateri(id='') {
+		$('.main-page').hide();
+		var url = routeMateriAdd
+		$.post(url, {id:id})
+		.done(function(data){
+			if(data.status == 'success'){
+				$('.other-page').html(data.content).fadeIn();
+			} else {
 				$('.main-page').show();
-			})
-		}
-		
-		function hapusMateri(id) {
-			Swal.fire({
-				title: "Apakah Anda Yakin?",
-				text: "Data Tersebut Akan Dihapus!",
-				icon: "warning",
-				showCancelButton: true,
-				confirmButtonColor: "#3085d6",
-				cancelButtonColor: "#d33",
-				confirmButtonText: "Ya, Hapus!"
-			}).then((result) => {
-				if (result.isConfirmed) {
-					var url = routeMateriDelete
-					$.post(url, {id:id})
-					.done(function(data){
-						console.log(data);
-						if(data.status == 'success'){
-							Swal.fire({
-								icon: 'success',
-								title: 'Berhasil',
-								text: data.message,
-								showConfirmButton: false,
-								timer: 1200
-							})
-							setTimeout(async ()=>{
-								await dataTable($('#status').val())
-								// $('#dataTabel').DataTable().ajax.reload()
-								// location.reload()
-							}, 1100);
-						} else {
-							Swal.fire({
-								icon: 'warning',
-								title: 'Whoops',
-								text: data.message,
-								showConfirmButton: false,
-								timer: 1300,
-							})
-						}
-					})
-					.fail(() => {
+			}
+		})
+		.fail(() => {
+			$('.other-page').empty();
+			$('.main-page').show();
+		})
+	}
+	
+	function hapusMateri(id) {
+		Swal.fire({
+			title: "Apakah Anda Yakin?",
+			text: "Data Tersebut Akan Dihapus!",
+			icon: "warning",
+			showCancelButton: true,
+			confirmButtonColor: "#3085d6",
+			cancelButtonColor: "#d33",
+			confirmButtonText: "Ya, Hapus!"
+		}).then((result) => {
+			if (result.isConfirmed) {
+				var url = routeMateriDelete
+				$.post(url, {id:id})
+				.done(function(data){
+					console.log(data);
+					if(data.status == 'success'){
 						Swal.fire({
-							icon: 'error',
-							title: 'Whoops..',
-							text: 'Terjadi kesalahan silahkan ulangi kembali',
+							icon: 'success',
+							title: 'Berhasil',
+							text: data.message,
+							showConfirmButton: false,
+							timer: 1200
+						})
+						setTimeout(async ()=>{
+							await dataTable($('#status').val())
+							// $('#dataTabel').DataTable().ajax.reload()
+							// location.reload()
+						}, 1100);
+					} else {
+						Swal.fire({
+							icon: 'warning',
+							title: 'Whoops',
+							text: data.message,
 							showConfirmButton: false,
 							timer: 1300,
 						})
+					}
+				})
+				.fail(() => {
+					Swal.fire({
+						icon: 'error',
+						title: 'Whoops..',
+						text: 'Terjadi kesalahan silahkan ulangi kembali',
+						showConfirmButton: false,
+						timer: 1300,
 					})
-				}
-			});
-			
-		}
+				})
+			}
+		});
+		
+	}
+
+	function exportPdf() {
+		var url = routeExportPdf;
+		window.open(url+'?start_date='+$('#start_date').val()+'&end_date='+$('#end_date').val(),'_blank')
+	}
+
+	function exportExcel() {
+		console.log('excel');
+	}
 </script>
 @endpush

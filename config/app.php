@@ -178,6 +178,7 @@ return [
 
         App\Providers\CustomUrlGeneratorProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
+        Barryvdh\DomPDF\ServiceProvider::class,
     ],
 
     /*
@@ -235,6 +236,7 @@ return [
         'Help' => App\Helpers\Helpers::class,
         'CLog' => App\Helpers\Logger::class,
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
+        'PDF' => Barryvdh\DomPDF\Facade::class,
 
     ],
 

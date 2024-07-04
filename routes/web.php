@@ -347,6 +347,7 @@ Route::middleware(['auth'])->group(function () {
 						->group(function () {
 							Route::get('/','main')->name('main');
 							Route::post('/add','add')->name('add');
+							Route::get('/export-pdf','exportPdf')->name('exportPdf');
 						});
 				});
 			# END JURNAL SEMUA GURU
@@ -425,6 +426,7 @@ Route::middleware(['auth'])->group(function () {
 				->group(function () {
 					Route::get('/', 'main')->name('main');
 					Route::post('/', 'add')->name('add');
+					Route::get('/export-pdf','exportPdf')->name('exportPdf');
 				});
 			# END JURNAL GURU
 

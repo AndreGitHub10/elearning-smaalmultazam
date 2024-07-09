@@ -57,6 +57,7 @@
 <script>
 	var routeDatatable = "{{route('admin.kelasSiswa.main')}}";
 	var routeNaikKelas = "{{route('admin.kelasSiswa.naikKelasForm')}}";
+	var routeImportNaikKelas = "{{route('admin.kelasSiswa.importNaikKelasForm')}}";
 	var routeDataKelasAdd = "{{route('admin.kelasSiswa.add')}}";
 	var routeDataKelasDelete = "{{route('admin.kelasSiswa.delete')}}";
 	var tahunAjaran = {{Illuminate\Support\Js::from($tahun_ajaran)}};
@@ -75,8 +76,8 @@
 		<'row mb-2'
 		<'col-sm-2 templateTambah'>
 		<'col-sm-2 templateNaikKelas'>
-		<'col-sm-3 templateTahunAjaran'>
-		<'col-sm-2 templateKelas'>
+		<'col-sm-2 templateImportNaikKelas'>
+		<'col-sm-3 templateTahunAjaranDanKelas'>
 		<'col-sm-3'f>
 		>
 		<'row mt-2'<'col-sm-12'tr>>
@@ -132,6 +133,9 @@
 		const templateNaikKelas = `
 			<button onclick="naikKelas()" class='btn btn-orange-brown text-white p-2 w-100'><i class='bx bx-trending-up' ></i>Naik Kelas</button>
 		`;
+		const templateImportNaikKelas = `
+			<button onclick="importNaikKelas()" class='btn btn-primary text-white p-2 w-100'><i class='bx bx-upload' ></i>Import</button>
+		`;
 
 		var kelas_option = '';
 
@@ -144,13 +148,13 @@
 		});
 
 		const templateKelas = `
-			<div style='display:-webkit-box;width:min-content'>
-				<label class="my-1 pe-1" style="white-space:nowrap;">Kelas
-					<select name="id_kelas" aria-controls="id_kelas" class="form-select form-select-sm select2 d-inline-block" id="id_kelas" onchange="filter()">
-						<option value="">Semua</option>
-						${kelas_option}
-					</select>
+			<div  class='w-100'>
+				<label class="pe-1" style="white-space:nowrap;">Kelas
 				</label>
+				<select name="id_kelas" aria-controls="id_kelas" class="form-select form-select-sm select2 d-inline-block" id="id_kelas" onchange="filter()">
+					<option value="">Semua</option>
+					${kelas_option}
+				</select>
 			</div>
 		`;
 
@@ -164,21 +168,25 @@
 			}
 		});
 
-		const templateTahunAjaran = `
-			<div style='display:-webkit-box;width:min-content'>
-				<label class="my-1 pe-1" style="white-space:nowrap;">Tahun Ajaran
+		const templateTahunAjaranDanKelas = `
+			<div class='d-flex gap-3'>
+				<div class='w-100'>
+					<label class="pe-1" style="white-space:nowrap;">Tahun Ajaran
+					</label>
 					<select name="id_tahun_ajaran" aria-controls="id_tahun_ajaran" class="form-select form-select-sm select2 d-inline-block" id="id_tahun_ajaran" onchange="filter()">
 						<option value="">Semua</option>
 						${tahun_ajaran}
 					</select>
-				</label>
+				</div>
+				${templateKelas}
 			</div>
 		`;
 
-		$("div.templateTahunAjaran").html(templateTahunAjaran)
-		$("div.templateKelas").html(templateKelas)
+		$("div.templateTahunAjaranDanKelas").html(templateTahunAjaranDanKelas)
+		// $("div.templateKelas").html(templateKelas)
 		$("div.templateTambah").html(templateTambah)
 		$("div.templateNaikKelas").html(templateNaikKelas)
+		$("div.templateImportNaikKelas").html(templateImportNaikKelas)
 	}
 
 	function tambahDataKelas(id='') {
@@ -201,6 +209,23 @@
 	function naikKelas() {
 		$('.main-page').hide();
 		var url = routeNaikKelas
+		$.get(url)
+		.done(function(data){
+			if(data.status == 'success'){
+				$('.other-page').html(data.content).fadeIn();
+			} else {
+				$('.main-page').show();
+			}
+		})
+		.fail(() => {
+			$('.other-page').empty();
+			$('.main-page').show();
+		})
+	}
+
+	function importNaikKelas() {
+		$('.main-page').hide();
+		var url = routeImportNaikKelas
 		$.get(url)
 		.done(function(data){
 			if(data.status == 'success'){

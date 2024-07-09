@@ -146,6 +146,9 @@ Route::middleware(['auth'])->group(function () {
 					Route::post('/naik-kelas-save', 'naikKelasSave')->name('naikKelasSave');
 					Route::post('/save', 'save')->name('save');
 					Route::post('/delete', 'delete')->name('delete');
+					Route::get('/import-naik-kelas-form', 'importNaikKelasForm')->name('importNaikKelasForm');
+					Route::post('/read-excel', 'readExcel')->name('readExcel');
+					Route::get('/list-siswa', 'listSiswa')->name('listSiswa');
 				});
 			# END MASTER > DATA KELAS SISWA
 

@@ -3,12 +3,13 @@
 namespace App\Http\Controllers\Elearning\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Imports\KelasSiswaImport;
 use App\Models\Kelas;
 use App\Models\Siswa;
 use App\Models\KelasSiswa;
 use App\Models\TahunAjaran;
 use Illuminate\Http\Request;
-use DataTables, Help, DB, CLog;
+use DataTables, Help, DB, CLog, Excel;
 use Illuminate\Support\Facades\Validator;
 
 class KelasSiswaController extends Controller
@@ -246,5 +247,47 @@ class KelasSiswaController extends Controller
 			CLog::catchError($request);
 			return Help::resMsg(null, 500);
 		}
+	}
+
+	public function importNaikKelasForm()
+	{
+		$data['tahun_ajaran'] = TahunAjaran::get();
+		$data['kelas'] = Kelas::get();
+		$content = view('main.content.admin.master.data-kelas-siswa.import-naik-kelas', $data)->render();
+		return ['status' => 'success', 'content' => $content];
+	}
+
+	public function readExcel(Request $request) {
+		$arraySiswa = Excel::toArray(new KelasSiswaImport, $request->file('file'));
+		$no_induk = [];
+		foreach ($arraySiswa[0] as $key => $value) {
+			$no_induk[] = (string)$value[$request->kolom-1];
+		}
+		$siswas = Siswa::whereHas('user',function ($q) use($no_induk) {
+				$q->whereIn('no_induk',$no_induk);
+			})->with('user');
+		$data['siswa'] = $siswas->get();
+		$data['no_induk'] = implode(',',$no_induk);
+		$data['no_induk_ada'] = implode(',',$siswas->get()->pluck('user.no_induk')->toArray());
+		$data['id_siswa'] = implode(',',$siswas->pluck('id_siswa')->toArray());
+		return ['status' => 'success', 'content' => $data];
+	}
+
+	public function listSiswa(Request $request) {
+		$siswa = Siswa::orderBy('id_siswa', 'DESC')
+			->with('user')
+			->has('user')
+			->whereIn('id_siswa',explode(',',$request->id_siswa))
+			->get();
+		return DataTables::of($siswa)->addIndexColumn()->
+		addColumn('nama_siswa', function ($row) {
+			return $row->nama;
+		})->addColumn('no_induk', function ($row) {
+			return $row->user->no_induk;
+		})->toJson();
+	}
+	
+	public function importNaikKelasSave(Request $request) {
+		
 	}
 }

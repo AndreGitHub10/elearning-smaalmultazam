@@ -24,6 +24,8 @@ use App\Http\Controllers\Elearning\Guru\PraktekBaikGuruController;
 use App\Http\Controllers\Elearning\Guru\ProfilGuruController;
 use App\Http\Controllers\Elearning\Guru\RaporController;
 use App\Http\Controllers\Elearning\Guru\SoalTulisController;
+use App\Http\Controllers\Elearning\Guru\AbsensiController;
+use App\Http\Controllers\Elearning\GuruPiket\AbsensiController as AppAbsensiController;
 use App\Http\Controllers\Elearning\GuruPiket\JurnalGuruController as AppJurnalGuruController;
 use App\Http\Controllers\Elearning\Siswa\DashboardController as DashboardSiswa;
 use App\Http\Controllers\Elearning\Siswa\DataNilaiController;
@@ -330,6 +332,16 @@ Route::middleware(['auth'])->group(function () {
 					Route::get('/', 'main')->name('main');
 				});
 			# END DOKUMEN
+
+			# START ABSEN GURU
+			Route::controller(AbsensiController::class)
+				->prefix('absen')
+				->as('absen.')
+				->group(function () {
+					Route::post('/absen-masuk','absenMasuk')->name('absenMasuk');
+					Route::post('/absen-pulang','absenPulang')->name('absenPulang');
+				});
+			# END ABSEN GURU
 		});
 	# END MIDDLEWARE GURU
 
@@ -351,6 +363,19 @@ Route::middleware(['auth'])->group(function () {
 						});
 				});
 			# END JURNAL SEMUA GURU
+
+			# ABSENSI SEMUA GURU
+			Route::prefix('absensi-guru')
+				->as('absensiGuru.')
+				->group(function () {
+					Route::controller(AppAbsensiController::class)
+						->group(function () {
+							Route::get('/','main')->name('main');
+							Route::post('/open-map','openMap')->name('openMap');
+							Route::get('/export-pdf','exportPdf')->name('exportPdf');
+						});
+				});
+			# END ABSENSI SEMUA GURU
 		});
 	# END MIDDLEWARE GURU PIKET
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Elearning;
 
 use App\Http\Controllers\Controller;
+use App\Models\Absensi;
 use App\Models\Dokumen;
 use App\Models\Guru;
 use App\Models\JurnalGuru;
@@ -33,6 +34,7 @@ class DashboardController extends Controller
 				$q->where('users_id', Auth::user()->id);
 			})->count();
 			$data['praktek'] = PraktekBaikGuru::where('user_id', Auth::user()->id)->count();
+			$data['absensi'] = Absensi::where('users_id', Auth::user()->id)->whereDate('tanggal_absen',date('Y-m-d'))->first();
 			return view('main.content.guru.dashboard.main', $data);
 		}
 		// if (Auth::user()->level_user == '2') {

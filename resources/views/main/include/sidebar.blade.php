@@ -302,6 +302,14 @@ if (!isset($title)) {
 						<div class="menu-title">Jurnal Semua Guru</div>
 					</a>
 				</li>
+				<li class="{{ ($title == 'Absensi Semua Guru') ? 'mm-active' : ''}}">
+					<a href="{{route('guruPiket.absensiGuru.main')}}">
+						<div class="parent-icon">
+							<i style="color: #fff" class='bx bx-login'></i>
+						</div>
+						<div class="menu-title">Absensi Semua Guru</div>
+					</a>
+				</li>
 			@endif
 		@endif
 

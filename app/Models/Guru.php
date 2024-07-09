@@ -43,6 +43,11 @@ class Guru extends Model
 		return $this->hasMany(SpreadsheetShare::class, 'guru_id', 'id_guru');
 	}
 
+	public function absensi()
+	{
+		return $this->hasMany(Absensi::class, 'guru_id', 'id_guru');
+	}
+
 	public static function store($request)
 	{
 		$guru = new Guru;

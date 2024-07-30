@@ -324,6 +324,7 @@ Route::middleware(['auth'])->group(function () {
 					Route::post('/save', 'save')->name('save');
 					Route::post('/delete', 'delete')->name('delete');
 					Route::post('/aktif', 'aktif')->name('aktif');
+					Route::get('/downloadFile/{id?}', 'downloadFile')->name('downloadFile');
 				});
 			# END PRAKTEK BAIK GURU
 

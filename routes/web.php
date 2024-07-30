@@ -616,3 +616,9 @@ Route::middleware(['auth'])->group(function () {
 # END MIDDLEWARE AUTH
 Route::get('/import', [TestController::class, 'import'])->name('import');
 // Route::get('/download', [DashboardController::class,'download'])->download();
+Route::controller(PraktekBaikGuruController::class)
+	->prefix('praktek-baik-guru')
+	->as('praktekBaikGuru.')
+	->group(function () {
+		Route::get('/downloadFile/{id?}', 'downloadFile')->name('downloadFile');
+	});

@@ -7,6 +7,7 @@ use App\Models\Guru;
 use Illuminate\Http\Request;
 use Auth;
 use App\Http\Libraries\compressFile;
+use App\Models\Kelas;
 use App\Models\KelasMapel;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -34,6 +35,13 @@ class ProfilGuruController extends Controller
 			$data['tugas_tambahan'][] = (object)[
 				'nama_tugas' => 'Guru Piket'
 			];
+		}
+		if ($kelas = Kelas::where('guru_id',$data['guru']->id_guru)->where('guru_id','!=',null)->get()) {
+			foreach ($kelas as $key => $value) {
+				$data['tugas_tambahan'][] = (object)[
+					'nama_tugas' => 'Wali Kelas '.$value->nama_kelas
+				];
+			}
 		}
 		return view('main.content.guru.profil-guru.main', $data);
 	}
